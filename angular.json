@@ -13,6 +13,7 @@
             "root": "",
             "sourceRoot": "src",
             "prefix": "app",
+
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
@@ -22,9 +23,17 @@
                         "main": "src/main.ts",
                         "polyfills": "src/polyfills.ts",
                         "tsConfig": "tsconfig.app.json",
-                        "aot": true,
+                        "aot": false,
+                        "stylePreprocessorOptions": {
+                            "includePaths": [
+                                "src/scss/",
+                                "src/scss/shared/",
+                                "node_modules/reset-css/sass/",
+                                "assets/fonts/"
+                            ]
+                        },
                         "assets": [ "src/favicon.ico", "src/assets" ],
-                        "styles": [ "src/styles.scss" ],
+                        "styles": [ "src/scss/styles.scss" ],
                         "scripts": []
                     },
                     "configurations": {

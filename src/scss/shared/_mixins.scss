@@ -1,0 +1,76 @@
+// Extra small devices (portrait phones, less than 576px)
+@media (max-width: 575.98px) {
+}
+
+// Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) and (max-width: 767.98px) {
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) and (max-width: 991.98px) {
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) and (max-width: 1199.98px) {
+}
+
+// Extra large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) {
+}
+
+@mixin device-width($device) {
+    @if $device == "mobiles" {
+        @media (max-width: 768px) {
+            @content;
+        }
+    } @else if $device == "tablets" {
+        @media (max-width: 768px) {
+            // @media (min-width: 576px) and (max-width: 767.98px) {
+            @content;
+        }
+    } @else if $device == "desktops" {
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+            @content;
+        }
+    } @else {
+        @media (min-width: 1200px) {
+            @content;
+        }
+    }
+}
+
+@function calculateRem($size) {
+    $remSize: $size / 16px;
+    @return #{$remSize}rem;
+}
+
+@mixin fontSize($size) {
+    font-size: $size !important;
+    font-size: calculateRem($size) !important;
+}
+
+@mixin md-icon-size($size: 24px) {
+    font-size: $size;
+    height: $size;
+    width: $size;
+    line-height: $size;
+}
+
+@mixin placeholder-color($color) {
+    &::-webkit-input-placeholder {
+        /* WebKit browsers */
+        color: $color;
+    }
+    &:-moz-placeholder {
+        /* Mozilla Firefox 4 to 18 */
+        color: $color;
+    }
+    &::-moz-placeholder {
+        /* Mozilla Firefox 19+ */
+        color: $color;
+    }
+    &:-ms-input-placeholder {
+        /* Internet Explorer 10+ */
+        color: $color;
+    }
+}
