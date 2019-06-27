@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import {
   Component,
   Input,
@@ -10,7 +11,8 @@ import {
   OnInit,
   OnChanges,
   ContentChild,
-  TemplateRef
+  TemplateRef,
+  HostBinding
 } from '@angular/core';
 
 import * as moment from 'moment';
@@ -18,7 +20,7 @@ import * as moment from 'moment';
 
 import { area, line, curveLinear } from 'd3-shape';
 import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
-import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, calculateViewDimensions } from '@swimlane/ngx-charts';
+import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, calculateViewDimensions, TooltipArea } from '@swimlane/ngx-charts';
 
 @Component({
   selector: 'combo-chart-component',
@@ -26,12 +28,12 @@ import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, c
   styleUrls: ['./combo-chart.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class ComboChartComponent extends BaseChartComponent {
+export class ComboChartComponent extends BaseChartComponent implements OnInit {
 
   @Input() curve: any = curveLinear;
   @Input() legend = false;
   @Input() legendTitle: string = 'Legend';
-  @Input() legendPosition: string = 'right';
+  @Input() legendPosition: string = 'below';
   @Input() xAxis;
   @Input() yAxis;
   @Input() showXAxisLabel;
@@ -50,20 +52,21 @@ export class ComboChartComponent extends BaseChartComponent {
   @Input() yRightAxisTickFormatting: any;
   @Input() roundDomains: boolean = false;
   @Input() colorSchemeLine: any[];
+  @Input() indexArry: string[];
   @Input() autoScale;
   @Input() lineChart: any;
   @Input() yLeftAxisScaleFactor: any;
   @Input() yRightAxisScaleFactor: any;
-  @Input() rangeFillOpacity: number;
+  @Input() rangeFillOpacity: number = 1;
   @Input() animations: boolean = true;
   @Input() noBarWhenZero: boolean = true;
-
+  @Input() timeLineSubjust = new Subject<any>()
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
-
+  @Output() setCurrentDate: EventEmitter<any> = new EventEmitter();
   @ContentChild('tooltipTemplate', { static: false }) tooltipTemplate: TemplateRef<any>;
   @ContentChild('seriesTooltipTemplate', { static: false }) seriesTooltipTemplate: TemplateRef<any>;
-
+  @ViewChild('TooltipArea', { static: false }) tooltipArea: TooltipArea;
   @ViewChild(LineSeriesComponent, { static: false }) lineSeriesComponent: LineSeriesComponent;
 
   dims: ViewDimensions;
@@ -78,6 +81,7 @@ export class ComboChartComponent extends BaseChartComponent {
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
   legendOptions: any;
+  anchorPos = -1;
   scaleType = 'time';
   xScaleLine;
   yScaleTreasury;
@@ -97,6 +101,19 @@ export class ComboChartComponent extends BaseChartComponent {
   bandwidth;
   barPadding = 8;
 
+
+  ngOnInit(): void {
+    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+    //Add 'implements OnInit' to the class.
+    this.timeLineSubjust.subscribe((item) => {
+      console.log(this.tooltipArea);
+
+      this.hoveredVertical = item.data.value;
+
+
+      // this.updateAnchor(item.data.index)
+    })
+  }
   trackBy(index, item): string {
     return item.name;
   }
@@ -125,7 +142,7 @@ export class ComboChartComponent extends BaseChartComponent {
     if (!this.yAxis) {
       this.legendSpacing = 0;
     } else if (this.showYAxisLabel && this.yAxis) {
-      this.legendSpacing = 100;
+      this.legendSpacing = 200;
     } else {
       this.legendSpacing = 100;
     }
@@ -139,7 +156,10 @@ export class ComboChartComponent extends BaseChartComponent {
       this.xDomainLine = this.filteredDomain;
     }
     this.xScale = this.getXScaleLine(this.xDomainLine, this.dims.width);
-
+    console.log(this.lineChart)
+    // this.lineChart.map((val) => {
+    //   this.getYDomainLine(val);
+    // })
     this.yDomainTreasury = this.getYDomainLine(0);
     this.yDomainBitcoin = this.getYDomainLine(1);
     this.yDomainSP = this.getYDomainLine(2);
@@ -163,15 +183,28 @@ export class ComboChartComponent extends BaseChartComponent {
 
   @HostListener('mouseleave')
   hideCircles(): void {
+    // this.setCurrentDate.emit({ index: -1, timestamp: -1 })
     this.hoveredVertical = null;
     this.deactivateAll();
   }
 
   updateHoveredVertical(item): void {
+    console.log("updateHoveredVertical");
+    console.log(this.tooltipArea);
+
+    const timestamp = new Date(item.value).getTime();
+    const index = this.indexArry.findIndex(val => timestamp == parseInt(val, 10))
+    this.setCurrentDate.emit({ index, timestamp })
     this.hoveredVertical = item.value;
     this.deactivateAll();
   }
-
+  updateAnchor(index) {
+    const closestPoint = this.xSet[index];
+    this.tooltipArea.anchorPos = this.xScale(closestPoint);
+    console.log(this.anchorPos);
+    this.anchorPos = Math.max(0, this.anchorPos);
+    this.anchorPos = Math.min(this.dims.width, this.anchorPos);
+  }
   updateDomain(domain): void {
     this.filteredDomain = domain;
     this.xDomainLine = this.filteredDomain;
@@ -188,7 +221,6 @@ export class ComboChartComponent extends BaseChartComponent {
 
   getSeriesDomain(): any[] {
     this.combinedSeries = this.lineChart.slice(0);
-    console.log(this.combinedSeries);
     return this.combinedSeries.map(d => d.name);
   }
 
@@ -231,7 +263,7 @@ export class ComboChartComponent extends BaseChartComponent {
     }
 
     this.scaleType = this.getScaleType(values);
-    console.log(this.scaleType);
+    // console.log(this.scaleType);
     let domain = [];
 
     if (this.scaleType === 'time') {
@@ -254,16 +286,15 @@ export class ComboChartComponent extends BaseChartComponent {
 
   getYDomainLine(index): any[] {
 
-    console.log(this.lineChart[index]);
     const domain = this.lineChart[index].series.map(d => d.value)
 
     let min = Math.min(...domain);
     const max = Math.max(...domain);
-    console.log("min,max", min, max);
+
     if (this.lineChart[index].name === 'sp') {
       if (this.yLeftAxisScaleFactor) {
         const minMax = this.yLeftAxisScaleFactor(min, max);
-        console.log(minMax);
+        // console.log(minMax);
         return [minMax.min, minMax.max];
       } else {
         min = Math.min(0, min);
@@ -273,8 +304,8 @@ export class ComboChartComponent extends BaseChartComponent {
     else {
       if (this.yRightAxisScaleFactor) {
         const minMax = this.yRightAxisScaleFactor(min, max);
-        console.log(minMax);
-        return [Math.min(0, minMax.min), minMax.max];
+        // console.log(minMax);
+        return [minMax.min, minMax.max];
       } else {
         min = Math.min(0, min);
         return [min, max];
@@ -288,9 +319,9 @@ export class ComboChartComponent extends BaseChartComponent {
       this.bandwidth = width - this.barPadding;
     }
     const offset = Math.floor((width + this.barPadding - (this.bandwidth + this.barPadding) * domain.length) / 2);
-
+    console.log("this.scaleType", this.scaleType);
     if (this.scaleType === 'time') {
-      console.log("domain====", domain);
+      // console.log("domain====", domain);
       scale = scaleTime()
         .range([0, width])
         .domain(domain);
@@ -336,24 +367,6 @@ export class ComboChartComponent extends BaseChartComponent {
     return this.roundDomains ? scale.nice() : scale;
   }
 
-  getXDomain(): any[] {
-    return this.lineChart[0].series.map(d => d.name);
-  }
-
-  getYDomain() {
-
-    const values = this.lineChart[2].series.map(d => d.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    if (this.yLeftAxisScaleFactor) {
-      console.log("this.yLeftAxisScaleFactor");
-      const minMax = this.yLeftAxisScaleFactor(min, max);
-      return [minMax.min, minMax.max];
-    } else {
-      return [min, max];
-    }
-
-  }
 
   onClick(data) {
     this.select.emit(data);
@@ -361,9 +374,9 @@ export class ComboChartComponent extends BaseChartComponent {
 
   setColors(): void {
     let domain;
-    console.log("this.schemeType", this.schemeType);
+    // console.log("this.schemeType", this.schemeType);
     if (this.schemeType === 'ordinal') {
-      domain = this.xDomainLine;
+      domain = this.yDomainSP;
     } else {
       domain = this.yDomainSP;
     }
@@ -391,7 +404,7 @@ export class ComboChartComponent extends BaseChartComponent {
   }
 
   updateLineWidth(width): void {
-    this.bandwidth = width;
+    this.bandwidth = width + 80;
     this.scaleLines();
   }
 
