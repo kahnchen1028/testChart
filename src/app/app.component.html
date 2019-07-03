@@ -1,11 +1,13 @@
 <div class="chart">
     <line-chart-component
+
     class="chart-container"
     [view]="view"
     [showLegend]="false"
     [animations]="animations"
     [xAxis]="showXAxis"
     [yAxis]="showYAxis"
+    [showAllTooltips]="false"
     [series]="dayChartSeries"
     [scheme]="lineChartScheme"
     [yAxisTickFormatting]="yAxisTickFormatting"
@@ -47,6 +49,7 @@
   (select)="onSelect($event)"
   (setCurrentDate)="setCurrentDate($event)"
 >
+
 </combo-chart-component>
 </div>
 

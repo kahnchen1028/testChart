@@ -46,6 +46,7 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   @Input() hoveredVertical: any;
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
+  @Input() showAllTooltips = false;
   @ContentChild('tooltipTemplate', { static: false }) tooltipTemplate: TemplateRef<any>;
   @ContentChild('seriesTooltipTemplate', { static: false }) seriesTooltipTemplate: TemplateRef<any>;
   colors: ColorHelper;
@@ -68,7 +69,7 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   combinedSeries: any;
   rangeFillOpacity = 0.5;
   seriesDomain: any;
-  data = { 'name': '', series: [] };
+  data = []
   margin: any[] = [10, 20, 10, 20];
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
@@ -86,9 +87,16 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   }
   ngOnInit() {
     this.series.subscribe((dayInfo) => {
-      console.log("dayInfo", dayInfo);
-      this.data = dayInfo
-      this.result = [this.data]
+
+      this.result = []
+      this.data = []
+      for (let i in dayInfo) {
+        this.data.push({ name: i, series: dayInfo[i] })
+        this.result.push({ name: i, series: dayInfo[i] })
+      }
+
+
+
       this.update()
     })
   }
@@ -128,18 +136,23 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
     } else {
       domain = this.yDomain;
     }
-    console.log(domain);
     this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
-    console.log(this.colors);
-    console.log(this.colors.getColor('bitcoin'))
   }
 
 
 
   getXDomain(): any[] {
-    let values = getUniqueXDomainValues(this.result);
 
-    this.scaleType = getScaleType(values);
+
+    const valueSet = new Set();
+    for (const result of this.result) {
+
+      for (const d of result.series) {
+        valueSet.add(d.name);
+      }
+    }
+    let values = Array.from(valueSet);
+    this.scaleType = 'ordinal'
     let domain = [];
 
     if (this.scaleType === 'linear') {
@@ -175,7 +188,8 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
     return domain;
   }
   getSeriesDomain(): any[] {
-    this.combinedSeries = this.data.series.slice(0);
+
+    this.combinedSeries = this.data.slice(0);
     return this.combinedSeries.map(d => d.name);
   }
 
@@ -239,7 +253,6 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
     }
 
     const values = [...domain];
-    console.log("values", values);
     if (!this.autoScale) {
       values.push(0);
     }
@@ -309,6 +322,5 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   }
 
   onSelect(event) {
-    console.log(event);
   }
 }

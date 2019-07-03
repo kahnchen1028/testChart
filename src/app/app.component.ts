@@ -5,6 +5,7 @@ import { DataService } from './services/data.service';
 import { entries, keys } from 'd3-collection';
 import { Subject, from, of, Subscription } from 'rxjs';
 import { delay, concatMap, takeUntil, map } from 'rxjs/operators';
+import * as jsmepath from 'jmespath';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -70,7 +71,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   defaultChartData = {
     "-1": {
-      name: 'bitcoin', series: [{
+      'NoData': [{
         "name": "prep",
         "value": "0"
       },
@@ -107,30 +108,38 @@ export class AppComponent implements AfterViewInit, OnInit {
       const info = data.map(val => {
         return {
           ...val, series: val.series.map(series => {
-            return { ...series, name: new Date(series.name) };
+            return { ...series, name: series.name };
           })
         };
       });
       this.lineChartSeries = info;
-      // console.log(info);
+      console.log("getDataForYear", info);
 
     });
-    this.ds.getDataForDay().subscribe(data => {
+    this.ds.getDataForDay().subscribe(result => {
       const obj = {
         ...this.defaultChartData
       };
       // console.log(data);
 
-      data.map((val, index) => {
-        const series = { name: 'bitcoin', series: val.value, index: index };
-        obj[new Date(val.key).getTime()] =
-          series
-      });
+      result.map((company) => {
+        let series = {}
+        company.data.map((val, index) => {
+          series[company.name] = [...val.value]
+
+          // console.log(series, company.name, val.value);
+          obj[val.key] = { ...obj[val.key], ...series }
+
+        })
+      })
+
+      // console.log("ddddfsnsdkfjn;skjf;skjf;sd;", obj);
       this.dayChartData = obj;
       this.dayChartArray = entries(this.dayChartData)
-      this.dayChartIndexArray = keys(this.dayChartData)
+      // console.log(this.dayChartArray);
+      // this.dayChartIndexArray = keys(this.dayChartData)
       const initDate = { timestamp: this.dayChartArray[0].key, index: 0 }
-      console.log("get data init setCurrentDate", initDate);
+      // console.log("get data init setCurrentDate", initDate);
       this.setCurrentDate(initDate);
     });
 
@@ -160,6 +169,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.currentDate = moment(new Date(data.timestamp)).format("MMMM,DD YYYY")
     this.currentIndex = data.index;
     this.setTimeLine(data.timestamp)
+    console.log(this.dayChartData[data.timestamp]);
     this.dayChartSeries.next(this.dayChartData[data.timestamp]);
 
   }
@@ -201,7 +211,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   }
   setTimeLine(timestamp) {
-    this.timeLine.next({ data: { value: new Date(parseInt(timestamp)), index: this.currentIndex } })
+    this.timeLine.next({ data: { value: timestamp, index: this.currentIndex } })
   }
 
   stop() {

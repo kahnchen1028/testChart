@@ -5,20 +5,17 @@ import {
   ViewEncapsulation,
   Output,
   EventEmitter,
-  ChangeDetectionStrategy,
   ViewChild,
   HostListener,
   OnInit,
-  OnChanges,
   ContentChild,
-  TemplateRef,
-  HostBinding
+  TemplateRef
 } from '@angular/core';
 
 import * as moment from 'moment';
 
 
-import { area, line, curveLinear } from 'd3-shape';
+import { curveLinear } from 'd3-shape';
 import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, calculateViewDimensions, TooltipArea } from '@swimlane/ngx-charts';
 
@@ -106,7 +103,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     //Add 'implements OnInit' to the class.
     this.timeLineSubjust.subscribe((item) => {
-      console.log(this.tooltipArea);
 
       this.hoveredVertical = item.data.value;
 
@@ -114,7 +110,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
       // this.updateAnchor(item.data.index)
     })
   }
-  trackBy(index, item): string {
+  trackBy(item): string {
     return item.name;
   }
 
@@ -156,7 +152,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
       this.xDomainLine = this.filteredDomain;
     }
     this.xScale = this.getXScaleLine(this.xDomainLine, this.dims.width);
-    console.log(this.lineChart)
     // this.lineChart.map((val) => {
     //   this.getYDomainLine(val);
     // })
@@ -185,12 +180,13 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   hideCircles(): void {
     // this.setCurrentDate.emit({ index: -1, timestamp: -1 })
     this.hoveredVertical = null;
-    this.deactivateAll();
+    // this.deactivateAll();
   }
 
+  parseDate(date) {
+    return moment(date).format('MMMM,DD YYYY')
+  }
   updateHoveredVertical(item): void {
-    console.log("updateHoveredVertical");
-    console.log(this.tooltipArea);
 
     const timestamp = new Date(item.value).getTime();
     const index = this.indexArry.findIndex(val => timestamp == parseInt(val, 10))
@@ -201,7 +197,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   updateAnchor(index) {
     const closestPoint = this.xSet[index];
     this.tooltipArea.anchorPos = this.xScale(closestPoint);
-    console.log(this.anchorPos);
     this.anchorPos = Math.max(0, this.anchorPos);
     this.anchorPos = Math.min(this.dims.width, this.anchorPos);
   }
@@ -252,34 +247,37 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   }
 
   getXDomainLine(): any[] {
-    let values = [];
+    let values = new Set<number>()
 
     for (const results of this.lineChart) {
       for (const d of results.series) {
-        if (!values.includes(d.name)) {
-          values.push(new Date(d.name));
-        }
+        values.add(new Date(d.name).getTime())
       }
     }
+    // console.log(values);
+    let info = Array.from(values)
 
-    this.scaleType = this.getScaleType(values);
+
+    this.scaleType = this.getScaleType(info);
     // console.log(this.scaleType);
     let domain = [];
 
     if (this.scaleType === 'time') {
-      const min = Math.min(...values);
-      const max = Math.max(...values);
+      const min = Math.min(...info);
+      const max = Math.max(...info);
       domain = [min, max];
     } else if (this.scaleType === 'linear') {
-      values = values.map(v => Number(v));
-      const min = Math.min(...values);
-      const max = Math.max(...values);
+      info = info.map(v => Number(v));
+      // console.log(info);
+      const min = Math.min(...info);
+      const max = Math.max(...info);
+      // console.log(domain);
       domain = [min, max];
     } else {
-      domain = values;
+      domain = info;
     }
 
-    this.xSet = values;
+    this.xSet = info;
     return domain;
   }
 
@@ -319,7 +317,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
       this.bandwidth = width - this.barPadding;
     }
     const offset = Math.floor((width + this.barPadding - (this.bandwidth + this.barPadding) * domain.length) / 2);
-    console.log("this.scaleType", this.scaleType);
     if (this.scaleType === 'time') {
       // console.log("domain====", domain);
       scale = scaleTime()

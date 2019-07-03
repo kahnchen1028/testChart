@@ -89,9 +89,11 @@
             [results]="combinedSeries"
             [colors]="colorsLine"
             [tooltipDisabled]="tooltipDisabled"
+            [tooltipTemplate]="seriesTooltipTemplate"
 
-            (hover)="updateHoveredVertical($event)"
-          />
+          >
+
+        </svg:g>
 
           <svg:g *ngFor="let series of lineChart|keyvalue ">
               <svg:g
@@ -111,4 +113,13 @@
             </svg:g>
         </svg:g>
       </svg:g>
+      <ng-template #seriesTooltipTemplate let-model="model">
+        <div class="tool-template">
+        <h4>{{parseDate(model.name)}}</h4>
+        <div  *ngFor="let item of model">
+            {{item.series}}:{{item.value}}
+        </div>
+        <!-- <pre>{{model|json}}</pre> -->
+      </div>
+      </ng-template>
     </ngx-charts-chart>

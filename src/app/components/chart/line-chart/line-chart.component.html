@@ -1,4 +1,4 @@
-<ngx-charts-line-chart
+<!-- <ngx-charts-line-chart
         [view]="view"
         class="chart-container"
         [scheme]="scheme"
@@ -34,14 +34,14 @@
 [scheme]="scheme"
 [schemeType]="schemeType"
 [results]="result"
-></ngx-charts-line-chart>
+></ngx-charts-line-chart> -->
 
-<!-- <ngx-charts-chart
+<ngx-charts-chart
       [view]="[width, height]"
       [showLegend]="showLegend"
       [legendOptions]="legendOptions"
       [animations]="animations"
-      *ngIf="data.series.length > 0"
+      *ngIf="result.length > 0"
     >
     <svg:defs>
         <svg:clipPath [attr.id]="clipPathId">
@@ -73,7 +73,7 @@
 
 
         <svg:g [attr.clip-path]="clipPath">
-            <svg:g *ngFor="let series of result; trackBy: trackBy" >
+            <svg:g *ngFor="let series of data; trackBy: trackBy" >
               <svg:g
                 ngx-charts-line-series
                 [xScale]="xScale"
@@ -97,17 +97,17 @@
                 [yScale]="yScale"
                 [results]="result"
                 [colors]="colors"
-                [tooltipDisabled]="tooltipDisabled"
+                [tooltipDisabled]="true"
                 [tooltipTemplate]="seriesTooltipTemplate"
                 (hover)="updateHoveredVertical($event)"
               />
-
+              <svg:g *ngFor="let info of data; trackBy: trackBy" >
                 <svg:g
                   ngx-charts-circle-series
                   [xScale]="xScale"
                   [yScale]="yScale"
                   [colors]="colors"
-                  [data]="data"
+                  [data]="info"
                   [scaleType]="scaleType"
                   [visibleValue]="hoveredVertical"
                   [activeEntries]="activeEntries"
@@ -118,24 +118,10 @@
                   (deactivate)="onDeactivate($event)"
                 />
 
+              </svg:g>
             </svg:g>
           </svg:g>
-        <svg:g >
-            <svg:g
-              ngx-charts-line-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [data]="data"
-              [scaleType]="scaleType"
-              [curve]="curve"
-              [activeEntries]="activeEntries"
-              [animations]="animations"
-              (activate)="onActivate($event)"
-              (deactivate)="onDeactivate($event)"
-            />
 
-        </svg:g>
         <svg:g
         ngx-charts-y-axis
         *ngIf="yAxis"
@@ -152,10 +138,11 @@
         [showRefLines]="showRefLines"
         [showRefLabels]="showRefLabels"
         (dimensionsChanged)="updateYAxisWidth($event)"
-      ></svg:g>
+      >
+    </svg:g>
 
 
 
     </svg:g>
 
-  </ngx-charts-chart> -->
+  </ngx-charts-chart>

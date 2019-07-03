@@ -1,13 +1,13 @@
 <svg:g>
+
       <svg:rect
         class="tooltip-area"
         [attr.x]="0"
         y="0"
         [attr.width]="dims.width"
         [attr.height]="dims.height"
-        style="opacity: 0; cursor: 'auto';"
-        (mousemove)="mouseMove($event)"
-        (mouseleave)="hideTooltip()"
+        style="opacity: 0; cursor: 'auto'"
+        [style.pointer-events]="'none'"
       />
       <xhtml:ng-template #defaultTooltipTemplate let-model="model">
         <xhtml:div class="area-tooltip-container">
@@ -17,16 +17,16 @@
           </xhtml:div>
         </xhtml:div>
       </xhtml:ng-template>
+
       <svg:rect
         #tooltipAnchor
-
-        class="tooltip-anchor"
+        class="time-anchor tooltip-anchor"
         [attr.x]="anchorPos"
         y="0"
-        [attr.width]="1"
+        [attr.width]="10"
         [attr.height]="dims.height"
         [style.opacity]="anchorOpacity"
-        [style.pointer-events]="'none'"
+        [style.pointer-events]="'all'"
         ngx-tooltip
         [tooltipDisabled]="tooltipDisabled"
         [tooltipPlacement]="'right'"
@@ -35,5 +35,16 @@
         [tooltipTemplate]="tooltipTemplate ? tooltipTemplate : defaultTooltipTemplate"
         [tooltipContext]="anchorValues"
         [tooltipImmediateExit]="true"
+
       />
+      <!-- <svg:rect
+      #tooltipAnchor2
+      class="time-anchor"
+      [attr.x]="refAnchorPos"
+      y="0"
+      [attr.width]="10"
+      [attr.height]="dims.height"
+      [style.opacity]="refAnchorOpacity"
+
+    /> -->
     </svg:g>
