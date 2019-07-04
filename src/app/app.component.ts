@@ -1,11 +1,12 @@
-import { Component, HostListener, ElementRef, AfterViewInit, OnInit } from '@angular/core';
+import { Component, HostListener, ElementRef, AfterViewInit, OnInit, ViewChild } from '@angular/core';
 import { ViewDimensions } from '@swimlane/ngx-charts';
 import * as moment from 'moment';
-import { DataService } from './services/data.service';
+import { DataService, SharedService } from './services/data.service';
 import { entries, keys } from 'd3-collection';
 import { Subject, from, of, Subscription } from 'rxjs';
 import { delay, concatMap, takeUntil, map } from 'rxjs/operators';
 import * as jsmepath from 'jmespath';
+import { ComboChartComponent } from './components/chart/combo-chart/combo-chart.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -19,7 +20,8 @@ export class AppComponent implements AfterViewInit, OnInit {
   playSubscritpion: Subscription;
   single: any[];
   view: any[];
-  width = 700;
+  lineView: any[];
+  width: number;
   height = 300;
   // options
   showXAxis = true;
@@ -36,8 +38,6 @@ export class AppComponent implements AfterViewInit, OnInit {
   showYAxisLabel = false;
 
   showGridLines = true;
-  innerPadding = '10%';
-  roundDomains = true;
   maxRadius = 10;
   minRadius = 3;
   showSeriesOnHover = true;
@@ -64,7 +64,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   dayChartIndexArray = [];
   lineChartScheme = {
     name: 'coolthree',
-    selectable: false,
+    selectable: true,
     group: 'linear',
     domain: ['#01579b', '#7aa3e5', '#a8385d']
   };
@@ -91,18 +91,17 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   showRightYAxisLabel = true;
-  yAxisLabelRight = 'Utilization';
+  @ViewChild('comboChart', { static: false }) comboChart: ComboChartComponent;
 
 
 
-
-  constructor(private ref: ElementRef, private ds: DataService) {
+  constructor(private ref: ElementRef, private ds: DataService, public ss: SharedService) {
 
 
 
   }
   ngOnInit() {
-    this.width = this.ref.nativeElement.querySelector('.chart').clientWidth - 70;
+
     this.applyDimensions();
     this.ds.getDataForYear().subscribe(data => {
       const info = data.map(val => {
@@ -133,90 +132,47 @@ export class AppComponent implements AfterViewInit, OnInit {
         })
       })
 
+
       // console.log("ddddfsnsdkfjn;skjf;skjf;sd;", obj);
       this.dayChartData = obj;
       this.dayChartArray = entries(this.dayChartData)
       // console.log(this.dayChartArray);
       // this.dayChartIndexArray = keys(this.dayChartData)
-      const initDate = { timestamp: this.dayChartArray[0].key, index: 0 }
+      const initDate = { timestamp: this.dayChartArray[0].key }
       // console.log("get data init setCurrentDate", initDate);
-      this.setCurrentDate(initDate);
+      this.ss.currentDate.next(initDate);
     });
 
+    this.ss.currentData$.subscribe((data) => console.log("dataaaaaaaa", data))
+    this.ss.currentDate$.subscribe((data) => {
+      this.currentDate = moment(new Date(data.timestamp)).format("MMMM,DD YYYY")
+
+      this.dayChartSeries.next(this.dayChartData[data.timestamp]);
+    })
   }
 
 
   @HostListener('window:resize', ['$event.target'])
   onresize() {
-    this.width = this.ref.nativeElement.querySelector('.chart').clientWidth - 70;
     this.applyDimensions();
   }
 
   applyDimensions() {
+    this.width = this.ref.nativeElement.querySelector('.chart').clientWidth;
     this.view = [this.width, this.height];
+    this.lineView = [this.width, this.height];
+    console.log("this.view", this.view);
   }
 
-  onSelect(event) {
-    console.log(event);
+  onSelect(item) {
+    this.comboChart.onActivate(item.series)
   }
   ngAfterViewInit() {
 
 
   }
 
-  setCurrentDate(data) {
 
-    this.currentDate = moment(new Date(data.timestamp)).format("MMMM,DD YYYY")
-    this.currentIndex = data.index;
-    this.setTimeLine(data.timestamp)
-    console.log(this.dayChartData[data.timestamp]);
-    this.dayChartSeries.next(this.dayChartData[data.timestamp]);
-
-  }
-
-
-  play() {
-    console.log(this.dayChartArray)
-    if (this.currentIndex < 0) {
-      console.log(this.currentIndex);
-
-
-    }
-
-    const playList = this.dayChartArray.slice(this.currentIndex)
-    console.log(playList);
-
-
-    this.playSubscritpion = from(playList).pipe(
-
-      concatMap(v =>
-        of(v).
-          pipe(
-            delay(100)
-          )),
-      map((v, i) => { return { "index": v.value.index, "value": v.key } })
-    ).subscribe(
-      it => {
-        console.log(it);
-        this.currentIndex = it.index;
-        this.setTimeLine(it.value)
-
-      }
-      , (err) => { console.log("err", err); },
-      () => {
-        console.log("ccccccc");
-        this.currentIndex = -1;
-      }
-    );
-
-  }
-  setTimeLine(timestamp) {
-    this.timeLine.next({ data: { value: timestamp, index: this.currentIndex } })
-  }
-
-  stop() {
-    this.playSubscritpion.unsubscribe()
-  }
   yAxisTickFormatting(data) {
     return `${parseFloat(data).toFixed(3)}`;
   }

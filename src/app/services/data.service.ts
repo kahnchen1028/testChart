@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
+
   url: "http://localhost:3000/";
   constructor(private httpClient: HttpClient) { }
   getDataForYear(): Observable<Array<any>> {
@@ -17,9 +18,25 @@ export class DataService {
     return this.httpClient.get<Array<any>>(`http://localhost:3000/day_chart`)
   }
 }
+@Injectable({
+  providedIn: 'root'
+})
+export class SharedService {
+
+  currentData = new Subject();
+  currentData$ = this.currentData.asObservable();
+  currentDate = new Subject();
+  currentDate$ = this.currentDate.asObservable();
+
+}
+
+export class ServiceLocator {
+  static injector: Injector;
+}
 
 
 const cache = {};
+
 
 /**
  * Generates a short id.

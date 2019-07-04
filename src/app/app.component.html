@@ -1,61 +1,63 @@
-<div class="chart">
-    <line-chart-component
+<div class="flex-box flex-wrap">
+  <div class="chart flex-1">
+      <line-chart-component
+      class="chart-container"
+      [view]="lineView"
+      [showLegend]="true"
+      [animations]="animations"
+      [xAxis]="showXAxis"
+      [yAxis]="showYAxis"
+      [showAllTooltips]="false"
+      [series]="dayChartSeries"
+      [scheme]="lineChartScheme"
+      [yAxisTickFormatting]="yAxisTickFormatting"
+      (select)="onSelect($event)"
+    >
 
+    </line-chart-component>
+  </div>
+
+  <div class="chart flex-1">
+      <div class="flex-box">
+          <div class="flex-1" *ngFor="let item of ss.currentData$|async">
+            <Button (click)="onSelect(item)"> {{item.series}}:{{item.value}}</Button>
+
+          </div>
+
+        </div>
+    <combo-chart-component
+    #comboChart
+    *ngIf="lineChartSeries.length >0"
     class="chart-container"
     [view]="view"
-    [showLegend]="false"
+    [scheme]="lineChartScheme"
+    [colorSchemeLine]="lineChartScheme"
+    [autoScale]="true"
     [animations]="animations"
+    [lineChart]="lineChartSeries"
+    [tooltipDisabled]="tooltipDisabled"
+    [xAxisTickFormatting]="xTickFormat"
+    [yAxisTickFormatting]="yLeftTickFormat"
+    [yLeftAxisScaleFactor]="yLeftAxisScale"
+    [yRightAxisScaleFactor]="yRightAxisScale"
+    [yRightAxisTickFormatting]="yRightTickFormat"
+    [gradient]="gradient"
     [xAxis]="showXAxis"
     [yAxis]="showYAxis"
-    [showAllTooltips]="false"
-    [series]="dayChartSeries"
-    [scheme]="lineChartScheme"
-    [yAxisTickFormatting]="yAxisTickFormatting"
+    [legend]="showLegend"
+    [legendTitle]="legendTitle"
+    [legendPosition]="legendPosition"
+    [showGridLines]="showGridLines"
+    [showXAxisLabel]="showXAxisLabel"
+    [showYAxisLabel]="showYAxisLabel"
+    [showRightYAxisLabel]="showYAxisLabel"
 
-  >
 
-  </line-chart-component>
+    (select)="onSelect($event)"
+
+    >
+
+    </combo-chart-component>
+  </div>
+
 </div>
-
-<div class="chart">
-  <combo-chart-component
-  *ngIf="lineChartSeries.length >0"
-  class="chart-container"
-  [view]="view"
-  [scheme]="lineChartScheme"
-  [colorSchemeLine]="lineChartScheme"
-  [autoScale]="true"
-  [animations]="animations"
-  [lineChart]="lineChartSeries"
-  [tooltipDisabled]="tooltipDisabled"
-  [xAxisTickFormatting]="xTickFormat"
-  [yAxisTickFormatting]="yLeftTickFormat"
-  [yLeftAxisScaleFactor]="yLeftAxisScale"
-  [yRightAxisScaleFactor]="yRightAxisScale"
-  [yRightAxisTickFormatting]="yRightTickFormat"
-  [gradient]="gradient"
-  [xAxis]="showXAxis"
-  [yAxis]="showYAxis"
-  [legend]="showLegend"
-  [legendTitle]="legendTitle"
-  [legendPosition]="legendPosition"
-  [showGridLines]="showGridLines"
-  [showXAxisLabel]="showXAxisLabel"
-  [showYAxisLabel]="showYAxisLabel"
-  [showRightYAxisLabel]="showYAxisLabel"
-  [timeLineSubjust]="timeLine"
-  [yAxisLabelRight]="yAxisLabelRight"
-  [indexArry]="dayChartIndexArray"
-  (select)="onSelect($event)"
-  (setCurrentDate)="setCurrentDate($event)"
->
-
-</combo-chart-component>
-</div>
-
-
-
-
-
-<button (click)="play()">play</button>
-<button (click)="stop()">STOP</button>

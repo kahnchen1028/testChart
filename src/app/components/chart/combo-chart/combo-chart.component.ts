@@ -1,3 +1,4 @@
+import { SharedService, ServiceLocator } from './../../../services/data.service';
 import { Subject } from 'rxjs';
 import {
   Component,
@@ -18,11 +19,13 @@ import * as moment from 'moment';
 import { curveLinear } from 'd3-shape';
 import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, calculateViewDimensions, TooltipArea } from '@swimlane/ngx-charts';
+import { ChartModule } from '../chart.module';
 
 @Component({
   selector: 'combo-chart-component',
   templateUrl: './combo-chart.component.html',
   styleUrls: ['./combo-chart.component.scss'],
+
   encapsulation: ViewEncapsulation.None
 })
 export class ComboChartComponent extends BaseChartComponent implements OnInit {
@@ -49,7 +52,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   @Input() yRightAxisTickFormatting: any;
   @Input() roundDomains: boolean = false;
   @Input() colorSchemeLine: any[];
-  @Input() indexArry: string[];
   @Input() autoScale;
   @Input() lineChart: any;
   @Input() yLeftAxisScaleFactor: any;
@@ -60,7 +62,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   @Input() timeLineSubjust = new Subject<any>()
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
-  @Output() setCurrentDate: EventEmitter<any> = new EventEmitter();
   @ContentChild('tooltipTemplate', { static: false }) tooltipTemplate: TemplateRef<any>;
   @ContentChild('seriesTooltipTemplate', { static: false }) seriesTooltipTemplate: TemplateRef<any>;
   @ViewChild('TooltipArea', { static: false }) tooltipArea: TooltipArea;
@@ -74,7 +75,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   transform: string;
   colors: ColorHelper;
   colorsLine: ColorHelper;
-  margin: any[] = [10, 20, 10, 20];
+  margin: any[] = [0, 70, 0, 0];
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
   legendOptions: any;
@@ -97,18 +98,17 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   legendSpacing = 0;
   bandwidth;
   barPadding = 8;
+  currentData = [];
+  sharedService = ServiceLocator.injector.get(SharedService);
 
 
   ngOnInit(): void {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     //Add 'implements OnInit' to the class.
-    this.timeLineSubjust.subscribe((item) => {
 
-      this.hoveredVertical = item.data.value;
-
-
-      // this.updateAnchor(item.data.index)
-    })
+    this.activeEntries = [...this.getSeriesDomain()]
+    console.log(this.activeEntries);
+    this.activate.emit()
   }
   trackBy(item): string {
     return item.name;
@@ -184,13 +184,16 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   }
 
   parseDate(date) {
+    console.log(date);
     return moment(date).format('MMMM,DD YYYY')
   }
-  updateHoveredVertical(item): void {
+  updateVertical(item): void {
+    console.log(item);
+    this.sharedService.currentData.next(item.data)
+    this.sharedService.currentDate.next({ timestamp: item.value })
+    console.log(moment(item.value).format('MMMM,DD YYYY'));
 
-    const timestamp = new Date(item.value).getTime();
-    const index = this.indexArry.findIndex(val => timestamp == parseInt(val, 10))
-    this.setCurrentDate.emit({ index, timestamp })
+    // this.setCurrentDate.emit({ timestamp: item.value })
     this.hoveredVertical = item.value;
     this.deactivateAll();
   }
@@ -416,6 +419,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   }
 
   onActivate(item) {
+    console.log(this.activeEntries);
     const idx = this.activeEntries.findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });

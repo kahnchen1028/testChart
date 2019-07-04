@@ -1,8 +1,9 @@
- <ngx-charts-chart
+<div>
+   <ngx-charts-chart
       [view]="[width + legendSpacing, height]"
-      [showLegend]="legend"
+      [showLegend]="true"
       [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
+      [activeEntries]= this.activeEntries
       [animations]="animations"
       (legendLabelClick)="onClick($event)"
       (legendLabelActivate)="onActivate($event)"
@@ -53,7 +54,7 @@
         [yScale]="yScaleTreasury"
         [dims]="dims"
         [yOrient]="yOrientRight"
-        [yAxisOffset]="-40"
+        [yAxisOffset]="-30"
         [showGridLines]="false"
         [showLabel]="showRightYAxisLabel"
         [labelText]="yAxisLabelRight"
@@ -90,36 +91,19 @@
             [colors]="colorsLine"
             [tooltipDisabled]="tooltipDisabled"
             [tooltipTemplate]="seriesTooltipTemplate"
-
+            (update)="updateVertical($event)"
           >
 
         </svg:g>
 
-          <svg:g *ngFor="let series of lineChart|keyvalue ">
-              <svg:g
-              ngx-charts-circle-series
-              [xScale]="xScale"
-              [yScale]="(series?.value.name == 'sp')?yScaleSP:(series?.value.name == 'bitcoin')?yScaleBitcoin:yScaleTreasury"
-              [colors]="colorsLine"
-              [data]="series.value"
-              [scaleType]="scaleType"
-              [visibleValue]="hoveredVertical"
-              [activeEntries]="activeEntries"
-              [tooltipDisabled]="tooltipDisabled"
-              (select)="onClick($event, series)"
-              (activate)="onActivate($event)"
-              (deactivate)="onDeactivate($event)"
-            />
-            </svg:g>
+
         </svg:g>
       </svg:g>
-      <ng-template #seriesTooltipTemplate let-model="model">
-        <div class="tool-template">
-        <h4>{{parseDate(model.name)}}</h4>
-        <div  *ngFor="let item of model">
-            {{item.series}}:{{item.value}}
-        </div>
-        <!-- <pre>{{model|json}}</pre> -->
-      </div>
-      </ng-template>
+
     </ngx-charts-chart>
+
+</div>
+
+<div *ngFor="let item of sharedService.currentData$|async">
+ {{item.series}}: {{item.value}}
+</div>
