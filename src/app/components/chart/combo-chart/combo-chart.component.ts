@@ -56,7 +56,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   @Input() lineChart: any;
   @Input() yLeftAxisScaleFactor: any;
   @Input() yRightAxisScaleFactor: any;
-  @Input() rangeFillOpacity: number = 1;
+  @Input() rangeFillOpacity: number = 0.1;
   @Input() animations: boolean = true;
   @Input() noBarWhenZero: boolean = true;
   @Input() timeLineSubjust = new Subject<any>()
@@ -105,10 +105,9 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   ngOnInit(): void {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     //Add 'implements OnInit' to the class.
-
-    this.activeEntries = [...this.getSeriesDomain()]
-    console.log(this.activeEntries);
-    this.activate.emit()
+    console.log(this.lineChart);
+    this.activeEntries = [...this.lineChart]
+    // this.updateVertical(this.lineChart[0])
   }
   trackBy(item): string {
     return item.name;
@@ -195,7 +194,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
 
     // this.setCurrentDate.emit({ timestamp: item.value })
     this.hoveredVertical = item.value;
-    this.deactivateAll();
+
   }
   updateAnchor(index) {
     const closestPoint = this.xSet[index];
@@ -222,6 +221,10 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
     return this.combinedSeries.map(d => d.name);
   }
 
+
+  getStatus(idx) {
+
+  }
   isDate(value): boolean {
     if (value instanceof Date) {
       return true;
@@ -428,6 +431,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
     }
 
     this.activeEntries = [item, ...this.activeEntries];
+    console.log("A this.activeEntries", this.activeEntries);
     this.activate.emit({ value: item, entries: this.activeEntries });
   }
 
@@ -438,7 +442,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
 
     this.activeEntries.splice(idx, 1);
     this.activeEntries = [...this.activeEntries];
-
+    console.log("D this.activeEntries", this.activeEntries);
     this.deactivate.emit({ value: item, entries: this.activeEntries });
   }
 

@@ -25,7 +25,7 @@ export class SharedService {
 
   currentData = new Subject();
   currentData$ = this.currentData.asObservable();
-  currentDate = new Subject();
+  currentDate = new Subject<any>();
   currentDate$ = this.currentDate.asObservable();
 
 }

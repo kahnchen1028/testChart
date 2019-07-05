@@ -1,7 +1,7 @@
 <div>
    <ngx-charts-chart
       [view]="[width + legendSpacing, height]"
-      [showLegend]="true"
+      [showLegend]="false"
       [legendOptions]="legendOptions"
       [activeEntries]= this.activeEntries
       [animations]="animations"
@@ -62,14 +62,14 @@
         (dimensionsChanged)="updateYAxisWidth($event)"
       ></svg:g>
         <svg:g *ngIf="lineChart.length>0">
-          <svg:g  *ngFor="let series of lineChart |keyvalue ;trackBy: trackBy">
+          <svg:g  *ngFor="let series of lineChart ;trackBy: trackBy">
 
             <svg:g
-              ngx-charts-line-series
+              app-line-series-plus
               [xScale]="xScale"
-              [yScale]="(series?.value.name == 'sp')?yScaleSP:(series.value.name == 'bitcoin')?yScaleBitcoin:yScaleTreasury"
+              [yScale]="(series.name == 'sp')?yScaleSP:(series.name == 'bitcoin')?yScaleBitcoin:yScaleTreasury"
               [colors]="colorsLine"
-              [data]="series.value"
+              [data]="series"
               [activeEntries]="activeEntries"
               [scaleType]="scaleType"
               [curve]="curve"

@@ -28,7 +28,16 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
   }
 
   ngAfterViewInit() {
-
+    // const closestPoint = this.xSet[0];
+    // this.anchorPos = this.xScale(closestPoint) - 5;
+    // this.anchorPos = Math.max(0, this.anchorPos);
+    // this.anchorPos = Math.min(this.dims.width, this.anchorPos);
+    // this.anchorValues = this.getValues(closestPoint);
+    // this.update.emit({
+    //   index: 0,
+    //   value: closestPoint,
+    //   data: this.anchorValues
+    // });
 
   }
 

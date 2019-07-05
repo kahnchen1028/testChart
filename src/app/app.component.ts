@@ -34,7 +34,8 @@ export class AppComponent implements AfterViewInit, OnInit {
   tooltipDisabled = false;
   showText = true;
   currentDate = moment().add(-10, 'days').format("MMMM,DD YYYY")
-  timeLine = new Subject();
+  activateSet = new Set();
+  deactivateSet = new Set();
   showYAxisLabel = false;
 
   showGridLines = true;
@@ -104,14 +105,18 @@ export class AppComponent implements AfterViewInit, OnInit {
 
     this.applyDimensions();
     this.ds.getDataForYear().subscribe(data => {
+
       const info = data.map(val => {
+        this.activateSet.add(val.name)
         return {
           ...val, series: val.series.map(series => {
+
             return { ...series, name: series.name };
           })
         };
       });
       this.lineChartSeries = info;
+
       console.log("getDataForYear", info);
 
     });
@@ -136,14 +141,13 @@ export class AppComponent implements AfterViewInit, OnInit {
       // console.log("ddddfsnsdkfjn;skjf;skjf;sd;", obj);
       this.dayChartData = obj;
       this.dayChartArray = entries(this.dayChartData)
-      // console.log(this.dayChartArray);
-      // this.dayChartIndexArray = keys(this.dayChartData)
+
       const initDate = { timestamp: this.dayChartArray[0].key }
-      // console.log("get data init setCurrentDate", initDate);
+
       this.ss.currentDate.next(initDate);
     });
 
-    this.ss.currentData$.subscribe((data) => console.log("dataaaaaaaa", data))
+    this.ss.currentData$.subscribe((data) => console.log(data))
     this.ss.currentDate$.subscribe((data) => {
       this.currentDate = moment(new Date(data.timestamp)).format("MMMM,DD YYYY")
 
@@ -164,14 +168,44 @@ export class AppComponent implements AfterViewInit, OnInit {
     console.log("this.view", this.view);
   }
 
-  onSelect(item) {
-    this.comboChart.onActivate(item.series)
+  onSelect(idx) {
+    console.log(this.lineChartSeries[idx].name);
+    console.log(this.deactivateSet);
+    console.log(this.activateSet);
+    const isDeactivate = this.deactivateSet.has(this.lineChartSeries[idx].name);
+    const isActivate = this.activateSet.has(this.lineChartSeries[idx].name);
+    console.log(isDeactivate);
+    console.log(isActivate);
+    if (isDeactivate) {
+      this.comboChart.onActivate(this.lineChartSeries[idx])
+    }
+    if (isActivate) {
+      this.comboChart.onDeactivate(this.lineChartSeries[idx])
+    }
+
   }
   ngAfterViewInit() {
 
 
   }
 
+  activate(data) {
+    data = JSON.parse(JSON.stringify(data));
+    this.activateSet.add(data.value.name)
+
+    this.deactivateSet.delete(data.value.name)
+
+    console.log('Activate', data, this.activateSet);
+    console.log('Deactivate', this.deactivateSet);
+  }
+
+  deactivate(data) {
+    data = JSON.parse(JSON.stringify(data));
+    this.deactivateSet.add(data.value.name)
+    this.activateSet.delete(data.value.name)
+    console.log('Activate', this.activateSet);
+    console.log('Deactivate', data, this.deactivateSet);
+  }
 
   yAxisTickFormatting(data) {
     return `${parseFloat(data).toFixed(3)}`;
@@ -188,6 +222,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   */
 
   yLeftAxisScale(min, max) {
+
     // console.log({ min: `${min}`, max: `${max}` });
     return { min: `${min - 2000}`, max: `${max + 2000}` };
   }

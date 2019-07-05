@@ -19,8 +19,8 @@
 
   <div class="chart flex-1">
       <div class="flex-box">
-          <div class="flex-1" *ngFor="let item of ss.currentData$|async">
-            <Button (click)="onSelect(item)"> {{item.series}}:{{item.value}}</Button>
+          <div class="flex-1" *ngFor="let item of ss.currentData$|async ;let i=index;">
+            <Button (click)="onSelect(i)"> {{item.series}}:{{item.value}}</Button>
 
           </div>
 
@@ -52,7 +52,8 @@
     [showYAxisLabel]="showYAxisLabel"
     [showRightYAxisLabel]="showYAxisLabel"
 
-
+    (activate)="activate($event)"
+    (deactivate)="deactivate($event)"
     (select)="onSelect($event)"
 
     >

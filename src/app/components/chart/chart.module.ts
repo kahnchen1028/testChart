@@ -5,11 +5,15 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { TooltipComponent } from '../tooltip/tooltip/tooltip.component';
 import { LineChartComponent } from './line-chart/line-chart.component';
 
+import { LineSeriesPlusComponent } from './line-chart/line-series-plus/line-series-plus.component';
+
+
 @NgModule({
   declarations: [
     ComboChartComponent,
     LineChartComponent,
-    TooltipComponent
+    TooltipComponent,
+    LineSeriesPlusComponent
   ],
   imports: [
     CommonModule,
