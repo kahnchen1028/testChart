@@ -19,7 +19,7 @@ import * as moment from 'moment';
 import { curveLinear } from 'd3-shape';
 import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, calculateViewDimensions, TooltipArea } from '@swimlane/ngx-charts';
-import { ChartModule } from '../chart.module';
+
 
 @Component({
   selector: 'combo-chart-component',
@@ -56,6 +56,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   @Input() lineChart: any;
   @Input() yLeftAxisScaleFactor: any;
   @Input() yRightAxisScaleFactor: any;
+  @Input() yRight2AxisScaleFactor: any;
   @Input() rangeFillOpacity: number = 0.1;
   @Input() animations: boolean = true;
   @Input() noBarWhenZero: boolean = true;
@@ -75,7 +76,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   transform: string;
   colors: ColorHelper;
   colorsLine: ColorHelper;
-  margin: any[] = [0, 70, 0, 0];
+  margin: any[] = [10, 70, 10, 0];
   xAxisHeight: number = 0;
   yAxisWidth: number = 0;
   legendOptions: any;
@@ -131,7 +132,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
       legendType: this.schemeType,
       legendPosition: this.legendPosition
     });
-
+    this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
     if (this.lineChart.length <= 0) return;
 
     if (!this.yAxis) {
@@ -163,8 +164,8 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
 
     this.setColors();
     this.legendOptions = this.getLegendOptions();
+    console.log(this.dims.xOffset);
 
-    this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
   }
 
   deactivateAll() {
@@ -306,14 +307,28 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
       }
     }
     else {
-      if (this.yRightAxisScaleFactor) {
-        const minMax = this.yRightAxisScaleFactor(min, max);
-        // console.log(minMax);
-        return [minMax.min, minMax.max];
-      } else {
-        min = Math.min(0, min);
-        return [min, max];
+
+      if (this.lineChart[index].name === 'bincoin') {
+        if (this.yRightAxisScaleFactor) {
+          const minMax = this.yRightAxisScaleFactor(min, max);
+          // console.log(minMax);
+          return [minMax.min, minMax.max];
+        } else {
+          min = Math.min(0, min);
+          return [min, max];
+        }
       }
+      else {
+        if (this.yRight2AxisScaleFactor) {
+          const minMax = this.yRight2AxisScaleFactor(min, max);
+          // console.log(minMax);
+          return [minMax.min, minMax.max];
+        } else {
+          min = Math.min(0, min);
+          return [min, max];
+        }
+      }
+
     }
   }
 

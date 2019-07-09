@@ -11,11 +11,16 @@ export class DataService {
 
   url: "http://localhost:3000/";
   constructor(private httpClient: HttpClient) { }
+
+
   getDataForYear(): Observable<Array<any>> {
     return this.httpClient.get<Array<any>>(`http://localhost:3000/year_chart`)
   }
   getDataForDay(): Observable<Array<any>> {
     return this.httpClient.get<Array<any>>(`http://localhost:3000/day_chart`)
+  }
+  getCircleDataForDay(): Observable<Array<any>> {
+    return this.httpClient.get<Array<any>>(`http://localhost:3000/circle_chart`)
   }
 }
 @Injectable({

@@ -51,17 +51,20 @@
         [attr.height]="dims.height"
         [style.opacity]="anchorOpacity"
         [style.pointer-events]="'none'"
-
-
       />
-      <!-- <svg:rect
-      #tooltipAnchor2
-      class="time-anchor"
+
+      <svg:rect
+      class="block"
       [attr.x]="refAnchorPos"
-      y="0"
-      [attr.width]="10"
-      [attr.height]="dims.height"
+      [attr.y]="dims.height"
+      [attr.width]="50"
+      [attr.height]="20"
       [style.opacity]="refAnchorOpacity"
 
-    /> -->
-    </svg:g>
+
+    >
+
+  </svg:rect>>
+  <svg:text  [attr.x]="refAnchorPos" #tooltipText
+  [attr.y]="dims.height+15"  font-size="10" fill="white" ></svg:text>
+</svg:g>

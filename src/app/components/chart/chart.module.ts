@@ -1,29 +1,31 @@
 import { NgModule, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ComboChartComponent } from './combo-chart/combo-chart.component';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { TooltipComponent } from '../tooltip/tooltip/tooltip.component';
-import { LineChartComponent } from './line-chart/line-chart.component';
+import { NgxChartsModule, LineChartModule } from '@swimlane/ngx-charts';
 
-import { LineSeriesPlusComponent } from './line-chart/line-series-plus/line-series-plus.component';
+import { LineBubbleChartComponent } from './line-buble-chart/line-bubble-chartComponent';
+import { LineSeriesPlusComponent } from './shared/line-series-plus/line-series-plus.component';
+import { TooltipComponent } from './shared/tooltip/tooltip.component';
+
 
 
 @NgModule({
   declarations: [
     ComboChartComponent,
-    LineChartComponent,
+    LineBubbleChartComponent,
     TooltipComponent,
     LineSeriesPlusComponent
   ],
   imports: [
     CommonModule,
     NgxChartsModule,
+    LineChartModule
   ],
 
   exports:
     [
       ComboChartComponent,
-      LineChartComponent,
+      LineBubbleChartComponent,
     ]
 })
 export class ChartModule {

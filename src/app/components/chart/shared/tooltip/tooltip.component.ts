@@ -5,6 +5,7 @@ import { drag } from 'd3-drag';
 import { select, selectAll } from 'd3-selection';
 import { createMouseEvent } from '@swimlane/ngx-charts/release/events';
 import { ViewEncapsulation } from '@angular/compiler/src/core';
+import * as moment from 'moment';
 
 @Component({
   selector: 'g[app-tooltip]',
@@ -22,6 +23,7 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
   anchorOpacity = 0.7;
   @Output() update = new EventEmitter();
   @ViewChild('tooltipAnchor2', { static: false }) tooltipAnchor;
+  @ViewChild('tooltipText', { static: false }) tooltipText;
   constructor() {
     super();
 
@@ -64,7 +66,6 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
   }
 
 
-
   onDragStart(event) {
     const rect = (this.tooltipAnchor.nativeElement as HTMLObjectElement);
     const left = rect.getBoundingClientRect().left;
@@ -97,6 +98,7 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
     this.refAnchorPos = Math.min(this.dims.width, this.refAnchorPos);
 
     this.refAnchorValues = this.getValues(closestPoint);
+    console.log(this.refAnchorValues);
     this.anchorValues = this.refAnchorValues;
 
     // if (this.refAnchorPos !== this.lastAnchorPos) {
@@ -108,7 +110,8 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
       value: closestPoint,
       data: this.anchorValues
     });
-    //   this.showTooltip();
+    const objElm = (this.tooltipText.nativeElement as HTMLObjectElement);
+    objElm.innerHTML = moment(closestPoint).format("MMM D,YYYY")
 
     //   this.lastAnchorPos = this.refAnchorPos;
     // }
@@ -121,6 +124,37 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
 
   }
 
+  getToolTipText(tooltipItem: any): string {
+    let result: string = '';
+    if (tooltipItem.series !== undefined) {
+      result += tooltipItem.series;
+    } else {
+      result += '???';
+    }
+    result += ': ';
+    if (tooltipItem.value !== undefined) {
+      result += tooltipItem.value.toLocaleString();
+    }
+    if (tooltipItem.min !== undefined || tooltipItem.max !== undefined) {
+      result += ' (';
+      if (tooltipItem.min !== undefined) {
+        if (tooltipItem.max === undefined) {
+          result += '≥';
+        }
+        result += tooltipItem.min.toLocaleString();
+        if (tooltipItem.max !== undefined) {
+          result += ' - ';
+        }
+      } else if (tooltipItem.max !== undefined) {
+        result += '≤';
+      }
+      if (tooltipItem.max !== undefined) {
+        result += tooltipItem.max.toLocaleString();
+      }
+      result += ')';
+    }
+    return result;
+  }
 
 
 }

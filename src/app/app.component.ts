@@ -3,7 +3,7 @@ import { ViewDimensions } from '@swimlane/ngx-charts';
 import * as moment from 'moment';
 import { DataService, SharedService } from './services/data.service';
 import { entries, keys } from 'd3-collection';
-import { Subject, from, of, Subscription } from 'rxjs';
+import { Subject, from, of, Subscription, forkJoin } from 'rxjs';
 import { curveCardinal } from 'd3-shape'
 import { ComboChartComponent } from './components/chart/combo-chart/combo-chart.component';
 @Component({
@@ -59,34 +59,50 @@ export class AppComponent implements AfterViewInit, OnInit {
   // Combo Chart
   lineChartSeries: any[] = [];
   dayChartSeries = new Subject();
+  dayCircleChartSeries = new Subject();
   dayChartData: {};
+  dayCircleChartData: {};
   dayChartArray = [];
   dayChartIndexArray = [];
   lineChartScheme = {
     name: 'coolthree',
     selectable: true,
     group: 'linear',
-    domain: ['#01579b', '#7aa3e5', '#a8385d']
+    domain: ['#01579b', '#7aa3e5', '#a8385d', '#009900']
   };
 
   defaultChartData = {
     "-1": {
-      'NoData': [{
-        "name": "prep",
-        "value": "0"
-      },
-      {
-        "name": "week",
-        "value": "0"
-      },
-      {
-        "name": "month",
-        "value": "0"
-      },
-      {
-        "name": "quart",
-        "value": "0"
-      }]
+      'NoData': [
+        {
+          "name": "1",
+          "value": "0",
+
+        },
+        {
+          "name": "7",
+          "value": "0",
+
+        },
+        {
+          "name": "14",
+          "value": "0",
+
+        },
+        {
+          "name": "30",
+          "value": "0",
+
+        },
+        {
+          "name": "60",
+          "value": "0",
+
+        }, {
+          "name": "90",
+          "value": "0",
+
+        },]
     }
   }
 
@@ -119,13 +135,17 @@ export class AppComponent implements AfterViewInit, OnInit {
       console.log("getDataForYear", info);
 
     });
-    this.ds.getDataForDay().subscribe(result => {
+    forkJoin(
+      this.ds.getDataForDay(),
+      this.ds.getCircleDataForDay(),
+
+    ).subscribe((result) => {
       const obj = {
         ...this.defaultChartData
       };
       // console.log(data);
 
-      result.map((company) => {
+      result[0].map((company) => {
         let series = {}
         company.data.map((val, index) => {
           series[company.name] = [...val.value]
@@ -136,20 +156,88 @@ export class AppComponent implements AfterViewInit, OnInit {
         })
       })
 
-
-      // console.log("ddddfsnsdkfjn;skjf;skjf;sd;", obj);
       this.dayChartData = obj;
-      this.dayChartArray = entries(this.dayChartData)
 
-      const initDate = { timestamp: this.dayChartArray[0].key }
 
-      this.ss.currentDate.next(initDate);
-    });
+      const circleObj = {
+
+      };
+
+
+      result[1].map((company) => {
+        let series = {}
+        company.data.map((val, index) => {
+          series[company.name] = [...val.value]
+
+          // console.log(series, company.name, val.value);
+          circleObj[val.key] = { ...circleObj[val.key], ...series }
+
+        })
+      })
+
+      console.log("getCircleDataForDay", circleObj);
+
+      this.dayCircleChartData = circleObj;
+
+    })
+    // this.ds.getDataForDay().subscribe(result => {
+    //   const obj = {
+    //     ...this.defaultChartData
+    //   };
+    //   // console.log(data);
+
+    //   result.map((company) => {
+    //     let series = {}
+    //     company.data.map((val, index) => {
+    //       series[company.name] = [...val.value]
+
+    //       // console.log(series, company.name, val.value);
+    //       obj[val.key] = { ...obj[val.key], ...series }
+
+    //     })
+    //   })
+
+
+
+    //   this.dayChartData = obj;
+    //   this.dayChartArray = entries(this.dayChartData)
+
+    //   const initDate = { timestamp: this.dayChartArray[0].key }
+
+    //   this.ss.currentDate.next(initDate);
+    // });
+
+    // this.ds.getCircleDataForDay().subscribe(result => {
+    //   const obj = {
+
+    //   };
+
+
+    //   result.map((company) => {
+    //     let series = {}
+    //     company.data.map((val, index) => {
+    //       series[company.name] = [...val.value]
+
+    //       // console.log(series, company.name, val.value);
+    //       obj[val.key] = { ...obj[val.key], ...series }
+
+    //     })
+    //   })
+
+    //   console.log("getCircleDataForDay", obj);
+
+    //   this.dayCircleChartData = obj;
+    //   // this.dayChartArray = entries(this.dayChartData)
+
+    //   // const initDate = { timestamp: this.dayChartArray[0].key }
+
+    //   // this.ss.currentDate.next(initDate);
+    // });
 
     this.ss.currentData$.subscribe((data) => console.log(data))
     this.ss.currentDate$.subscribe((data) => {
       this.currentDate = moment(new Date(data.timestamp)).format("MMMM,DD YYYY")
-
+      this.dayCircleChartSeries.next(this.dayCircleChartData[data.timestamp]);
       this.dayChartSeries.next(this.dayChartData[data.timestamp]);
     })
   }
@@ -223,7 +311,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   yLeftAxisScale(min, max) {
 
     // console.log({ min: `${min}`, max: `${max}` });
-    return { min: `${min - 2000}`, max: `${max + 2000}` };
+    return { min: `${min - 2000}`, max: `${max + 1000}` };
   }
 
   yRightAxisScale(min, max) {
@@ -231,6 +319,10 @@ export class AppComponent implements AfterViewInit, OnInit {
     return { min: `${min}`, max: `${max + 50}` };
   }
 
+  yRight2AxisScale(min, max) {
+    // console.log({ min: `${min}`, max: `${max}` });
+    return { min: `${min}`, max: `${max + 30}` };
+  }
   yLeftTickFormat(data) {
     return `${data.toLocaleString()}`;
   }
@@ -242,6 +334,22 @@ export class AppComponent implements AfterViewInit, OnInit {
   xTickFormat(data) {
     return `${moment(data).format('MMM')}
             ${moment(data).format('YYYY')}`
+  }
+
+  xLineTickFormat(data) {
+    switch (data) {
+
+      case 7:
+        return '1W'
+      case 14:
+        return '2W'
+      case 30:
+        return '1M'
+      case 60:
+        return '2M'
+      default:
+        return ''
+    }
   }
   /*
   **

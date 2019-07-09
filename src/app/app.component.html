@@ -1,21 +1,22 @@
 <div class="flex-box flex-wrap">
   <div class="chart flex-1">
-      <line-chart-component
+      <line-bubble-chart-component
       class="chart-container"
+      [showGridLines]="showGridLines"
       [view]="lineView"
-      [showLegend]="true"
       [animations]="animations"
       [xAxis]="showXAxis"
       [yAxis]="showYAxis"
-      [showAllTooltips]="false"
       [series]="dayChartSeries"
+      [circleSeries]="dayCircleChartSeries"
       [scheme]="lineChartScheme"
+      [xAxisTickFormatting]="xLineTickFormat"
+
       [yAxisTickFormatting]="yAxisTickFormatting"
       (select)="onSelect($event)"
-    >
-
-    </line-chart-component>
+    ></line-bubble-chart-component>
   </div>
+
 
   <div class="chart flex-1">
       <div class="flex-box">
@@ -40,6 +41,7 @@
     [yAxisTickFormatting]="yLeftTickFormat"
     [yLeftAxisScaleFactor]="yLeftAxisScale"
     [yRightAxisScaleFactor]="yRightAxisScale"
+    [yRight2AxisScaleFactor]="yRight2AxisScale"
     [yRightAxisTickFormatting]="yRightTickFormat"
     [gradient]="gradient"
     [xAxis]="showXAxis"
