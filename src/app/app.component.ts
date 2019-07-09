@@ -4,8 +4,7 @@ import * as moment from 'moment';
 import { DataService, SharedService } from './services/data.service';
 import { entries, keys } from 'd3-collection';
 import { Subject, from, of, Subscription } from 'rxjs';
-import { delay, concatMap, takeUntil, map } from 'rxjs/operators';
-import * as jsmepath from 'jmespath';
+import { curveCardinal } from 'd3-shape'
 import { ComboChartComponent } from './components/chart/combo-chart/combo-chart.component';
 @Component({
   selector: 'app-root',
@@ -37,7 +36,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   activateSet = new Set();
   deactivateSet = new Set();
   showYAxisLabel = false;
-
+  curve: any = curveCardinal;
   showGridLines = true;
   maxRadius = 10;
   minRadius = 3;

@@ -1,8 +1,8 @@
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter, HostListener, TemplateRef, ContentChild } from '@angular/core';
-import { BaseChartComponent, calculateViewDimensions, ViewDimensions, LineSeriesComponent, ColorHelper, getUniqueXDomainValues, getScaleType, GridPanelSeriesComponent } from '@swimlane/ngx-charts';
-import { area, line, curveLinear } from 'd3-shape';
-import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
+import { BaseChartComponent, calculateViewDimensions, ViewDimensions, LineSeriesComponent, ColorHelper, GridPanelSeriesComponent } from '@swimlane/ngx-charts';
+import { curveLinear, curveBasis, curveCatmullRom } from 'd3-shape';
+import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { id } from 'src/app/services/data.service';
 
 @Component({
@@ -11,7 +11,7 @@ import { id } from 'src/app/services/data.service';
   styleUrls: ['./line-chart.component.scss']
 })
 export class LineChartComponent extends BaseChartComponent implements OnInit {
-  @Input() curve: any = curveLinear;
+  @Input() curve: any = curveCatmullRom;
   @Input() showLegend = false;
   @Input() xAxis = true;
   @Input() yAxis = true;
@@ -82,7 +82,7 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
   onClick(data): void {
     this.select.emit(data);
   }
-  trackBy(index, item): string {
+  trackBy(item): string {
     return item.name;
   }
   ngOnInit() {
@@ -321,6 +321,6 @@ export class LineChartComponent extends BaseChartComponent implements OnInit {
     this.deactivateAll();
   }
 
-  onSelect(event) {
+  onSelect() {
   }
 }
