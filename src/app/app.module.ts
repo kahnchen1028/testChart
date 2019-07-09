@@ -5,6 +5,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ServiceLocator } from './services/data.service';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import localeFrExtra from '@angular/common/locales/extra/fr';
 
 @NgModule({
   declarations: [
@@ -21,5 +24,8 @@ import { ServiceLocator } from './services/data.service';
 export class AppModule {
   constructor(private injector: Injector) {    // Create global Service Injector.
     ServiceLocator.injector = this.injector;
+
+
+    registerLocaleData(localeFr, 'fr-FR', localeFrExtra);
   }
 }

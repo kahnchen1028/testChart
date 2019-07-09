@@ -37,6 +37,15 @@
                         "scripts": []
                     },
                     "configurations": {
+                        "fr": {
+                            "aot": true,
+                            "outputPath": "dist/my-project-fr/",
+                            "i18nFile": "src/locale/messages.fr.xlf",
+                            "baseHref": "/fr/",
+                            "i18nFormat": "xlf",
+                            "i18nLocale": "fr",
+                            "i18nMissingTranslation": "error"
+                        },
                         "production": {
                             "fileReplacements": [
                                 {
@@ -69,6 +78,9 @@
                         "browserTarget": "testChart:build"
                     },
                     "configurations": {
+                        "fr": {
+                            "browserTarget": "testChart:build:fr"
+                        },
                         "production": {
                             "browserTarget": "testChart:build:production"
                         }
