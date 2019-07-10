@@ -16,7 +16,8 @@ import {
   calculateViewDimensions,
   ViewDimensions,
   ColorHelper,
-  getScaleType
+  getScaleType,
+  TooltipArea
 } from '@swimlane/ngx-charts';
 import { curveCardinal } from 'd3-shape';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
@@ -60,6 +61,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
   @Input() curve: any = curveCardinal;
   @Input() activeEntries: any[] = [];
   @Input() schemeType: string;
+  @Input() bubbleScheme: any;
   @Input() rangeFillOpacity: number;
   @Input() trimXAxisTicks: boolean = false;
   @Input() trimYAxisTicks: boolean = true;
@@ -84,7 +86,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
   @Output() activate: EventEmitter<any> = new EventEmitter();
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate', { static: false }) tooltipTemplate: TemplateRef<any>;
+  @ContentChild('tooltipAnchor', { static: false }) tooltipAnchor;
   @ContentChild('seriesTooltipTemplate', { static: false }) seriesTooltipTemplate: TemplateRef<any>;
   @Input()
   series: BehaviorSubject<any>;
@@ -113,6 +115,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
   legendOptions: any;
   scaleType = 'ordinal';
   colors: ColorHelper;
+  bubleColors: ColorHelper;
   combinedSeries: any;
   seriesDomain: any;
   data = [];
@@ -133,6 +136,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
     return item.name;
   }
   ngOnInit() {
+
     this.series.subscribe((dayInfo) => {
       this.result = [];
       this.data = [];
@@ -143,13 +147,12 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
       this.update();
     });
     this.circleSeries.subscribe((dayInfo) => {
-      this.result = [];
-      this.data = [];
+      this.circleResult = []
       console.log(dayInfo);
       for (let i in dayInfo) {
         this.circleResult.push({ name: i, series: dayInfo[i] });
       }
-
+      console.log(this.circleResult);
       this.circleUpdate();
     });
   }
@@ -207,7 +210,10 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
     else {
       domain = this.yDomain;
     }
+
     this.colors = new ColorHelper(this.scheme, this.schemeType, domain, this.customColors);
+
+    this.bubleColors = new ColorHelper(this.bubbleScheme, this.schemeType, domain, this.customColors);
   }
   updateDomain(domain): void {
     this.filteredDomain = domain;
@@ -329,6 +335,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
     return this.roundDomains ? scale.nice() : scale;
   }
   updateHoveredVertical(item): void {
+    console.log("updateHoveredVertical", item);
     this.hoveredVertical = item.value;
     this.deactivateAll();
   }

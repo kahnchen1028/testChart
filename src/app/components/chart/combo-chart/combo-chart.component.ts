@@ -10,7 +10,9 @@ import {
   HostListener,
   OnInit,
   ContentChild,
-  TemplateRef
+  TemplateRef,
+  AfterViewInit,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import * as moment from 'moment';
@@ -18,7 +20,15 @@ import * as moment from 'moment';
 
 import { curveLinear } from 'd3-shape';
 import { scaleBand, scaleLinear, scalePoint, scaleTime } from 'd3-scale';
-import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, calculateViewDimensions, TooltipArea } from '@swimlane/ngx-charts';
+import {
+  BaseChartComponent,
+  LineSeriesComponent,
+  ViewDimensions,
+  ColorHelper,
+  calculateViewDimensions,
+  TooltipArea
+} from '@swimlane/ngx-charts';
+import { TooltipComponent } from '../shared/tooltip/tooltip.component';
 
 
 @Component({
@@ -26,9 +36,10 @@ import { BaseChartComponent, LineSeriesComponent, ViewDimensions, ColorHelper, c
   templateUrl: './combo-chart.component.html',
   styleUrls: ['./combo-chart.component.scss'],
 
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComboChartComponent extends BaseChartComponent implements OnInit {
+export class ComboChartComponent extends BaseChartComponent implements OnInit, AfterViewInit {
 
   @Input() curve: any = curveLinear;
   @Input() legend = false;
@@ -65,7 +76,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
   @ContentChild('tooltipTemplate', { static: false }) tooltipTemplate: TemplateRef<any>;
   @ContentChild('seriesTooltipTemplate', { static: false }) seriesTooltipTemplate: TemplateRef<any>;
-  @ViewChild('TooltipArea', { static: false }) tooltipArea: TooltipArea;
+  @ViewChild('TooltipArea', { static: false }) tooltipArea: TooltipComponent;
   @ViewChild(LineSeriesComponent, { static: false }) lineSeriesComponent: LineSeriesComponent;
 
   dims: ViewDimensions;
@@ -106,9 +117,16 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   ngOnInit(): void {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
     //Add 'implements OnInit' to the class.
-    console.log(this.lineChart);
+
     this.activeEntries = [...this.lineChart]
-    // this.updateVertical(this.lineChart[0])
+
+  }
+  ngAfterViewInit() {
+
+    setTimeout(() => {
+      this.tooltipArea.setPosByIndex(364);
+    }, 300)
+
   }
   trackBy(item): string {
     return item.name;
@@ -189,6 +207,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
   }
   updateVertical(item): void {
     console.log(item);
+    this.sharedService.currentIndex.next(item.index)
     this.sharedService.currentData.next(item.data)
     this.sharedService.currentDate.next({ timestamp: item.value })
     console.log(moment(item.value).format('MMMM,DD YYYY'));
@@ -198,10 +217,8 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit {
 
   }
   updateAnchor(index) {
-    const closestPoint = this.xSet[index];
-    this.tooltipArea.anchorPos = this.xScale(closestPoint);
-    this.anchorPos = Math.max(0, this.anchorPos);
-    this.anchorPos = Math.min(this.dims.width, this.anchorPos);
+
+    this.tooltipArea.setPosByIndex(index);
   }
   updateDomain(domain): void {
     this.filteredDomain = domain;

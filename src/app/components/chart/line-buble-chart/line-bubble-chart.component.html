@@ -16,39 +16,8 @@
   </svg:clipPath>
 </svg:defs>
 <svg:g [attr.transform]="transform" class="bubble-chart chart">
-    <svg:g
-    ngx-charts-x-axis
-    *ngIf="xAxis"
-    [xScale]="xScale"
-    [dims]="dims"
-    [showGridLines]="showGridLines"
-    [showLabel]="showXAxisLabel"
-    [labelText]="xAxisLabel"
-    [trimTicks]="trimXAxisTicks"
-    [rotateTicks]="rotateXAxisTicks"
-    [maxTickLength]="maxXAxisTickLength"
-    [tickFormatting]="xAxisTickFormatting"
-    [ticks]="xAxisTicks"
-    (dimensionsChanged)="updateXAxisHeight($event)"
-  ></svg:g>
-  <svg:g
-    ngx-charts-y-axis
-    *ngIf="yAxis"
-    [yScale]="yScale"
-    [dims]="dims"
-    [showGridLines]="showGridLines"
-    [showLabel]="showYAxisLabel"
-    [labelText]="yAxisLabel"
-    [trimTicks]="trimYAxisTicks"
-    [maxTickLength]="maxYAxisTickLength"
-    [tickFormatting]="yAxisTickFormatting"
-    [ticks]="yAxisTicks"
-    [referenceLines]="referenceLines"
-    [showRefLines]="showRefLines"
-    [showRefLabels]="showRefLabels"
-    (dimensionsChanged)="updateYAxisWidth($event)"
-  ></svg:g>
-    <svg:rect
+
+   <svg:rect
     class="bubble-chart-area"
     x="0"
     y="0"
@@ -58,6 +27,18 @@
     (mouseenter)="deactivateAll()"
   />
   <svg:g [attr.clip-path]="clipPath" *ngIf="circleResult">
+      <svg:g
+      ngx-charts-tooltip-area
+      #tooltipArea2
+      [dims]="dims"
+      [xSet]="xSet"
+      [xScale]="xCircleScale"
+      [yScale]="yCircleScale"
+      [results]="circleResult"
+      [colors]="bubleColors"
+
+      (hover)="updateHoveredVertical($event)"
+    />
     <svg:g *ngFor="let cseries of circleResult;">
       <svg:g
         ngx-charts-bubble-series
@@ -68,11 +49,11 @@
         [yScaleType]="yScaleType"
         [xAxisLabel]="xAxisLabel"
         [yAxisLabel]="yAxisLabel"
-        [colors]="colors"
+        [colors]="bubleColors"
         [data]="cseries"
         [activeEntries]="activeEntries"
         [tooltipDisabled]="tooltipDisabled"
-        [tooltipTemplate]="tooltipTemplate"
+
         (select)="onClick($event, cseries)"
         (activate)="onActivate($event)"
         (deactivate)="onDeactivate($event)"
@@ -131,9 +112,10 @@
       />
     </svg:g>
 
-    <!-- <svg:g *ngIf="!tooltipDisabled" (mouseleave)="hideCircles()">
-      <svg:g
+    <svg:g *ngIf="!tooltipDisabled" (mouseleave)="hideCircles()">
+      <!-- <svg:g
         ngx-charts-tooltip-area
+        #tooltipArea
         [dims]="dims"
         [xSet]="xSet"
         [xScale]="xScale"
@@ -143,7 +125,7 @@
         [tooltipDisabled]="tooltipDisabled"
         [tooltipTemplate]="seriesTooltipTemplate"
         (hover)="updateHoveredVertical($event)"
-      />
+      /> -->
       <svg:g *ngFor="let series of result">
         <svg:g
           ngx-charts-circle-series
@@ -154,15 +136,15 @@
           [scaleType]="scaleType"
           [visibleValue]="hoveredVertical"
           [activeEntries]="activeEntries"
-          [tooltipDisabled]="tooltipDisabled"
-          [tooltipTemplate]="tooltipTemplate"
+          [tooltipDisabled]="true"
+
           (select)="onClick($event)"
           (activate)="onActivate($event)"
           (deactivate)="onDeactivate($event)"
         />
       </svg:g>
 
-    </svg:g> -->
+    </svg:g>
   </svg:g>
 </svg:g>
 

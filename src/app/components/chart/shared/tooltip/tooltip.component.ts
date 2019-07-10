@@ -67,6 +67,7 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
 
 
   onDragStart(event) {
+    event.preventDefault()
     const rect = (this.tooltipAnchor.nativeElement as HTMLObjectElement);
     const left = rect.getBoundingClientRect().left;
     const width = rect.getBoundingClientRect().width
@@ -81,44 +82,24 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
     }
   }
   onDrag(event) {
+    event.preventDefault()
     if (!this.isMouseDown) { return; }
     const x = (event.touches) ? event.touches[0].clientX : event.pageX;
 
     const xPos = x - event.target.getBoundingClientRect().left;
 
     const closestIndex = this.findClosestPointIndex(xPos);
-    const closestPoint = this.xSet[closestIndex];
-    this.anchorPos = this.xScale(closestPoint) - 5;
-    this.anchorPos = Math.max(0, this.anchorPos);
-    this.anchorPos = Math.min(this.dims.width, this.anchorPos);
-
-    console.log(closestIndex);
-    this.refAnchorPos = this.xScale(closestPoint)
-    this.refAnchorPos = Math.max(0, this.refAnchorPos);
-    this.refAnchorPos = Math.min(this.dims.width, this.refAnchorPos);
-
-    this.refAnchorValues = this.getValues(closestPoint);
-    console.log(this.refAnchorValues);
-    this.anchorValues = this.refAnchorValues;
-
-    // if (this.refAnchorPos !== this.lastAnchorPos) {
-    //   const ev = createMouseEvent('mouseleave');
-    //   this.tooltipAnchor.nativeElement.dispatchEvent(ev);
-    //   this.anchorOpacity = 0.7;
-    this.update.emit({
-      index: closestIndex,
-      value: closestPoint,
-      data: this.anchorValues
-    });
-    const objElm = (this.tooltipText.nativeElement as HTMLObjectElement);
-    objElm.innerHTML = moment(closestPoint).format("MMM D,YYYY")
+    this.setPosByIndex(closestIndex);
 
     //   this.lastAnchorPos = this.refAnchorPos;
     // }
 
 
   }
+
+
   onDragEnd(event) {
+    event.preventDefault()
     this.isMouseDown = false;
     // console.log('onDragEnd', event);
 
@@ -154,6 +135,36 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
       result += ')';
     }
     return result;
+  }
+  setPosByIndex(index) {
+    const closestPoint = this.xSet[index];
+    this.anchorPos = this.xScale(closestPoint) - 5;
+    this.anchorPos = Math.max(0, this.anchorPos);
+    this.anchorPos = Math.min(this.dims.width, this.anchorPos);
+
+    console.log(index);
+    this.refAnchorPos = this.xScale(closestPoint)
+    this.refAnchorPos = Math.max(0, this.refAnchorPos);
+    this.refAnchorPos = Math.min(this.dims.width, this.refAnchorPos);
+
+    this.refAnchorValues = this.getValues(closestPoint);
+    console.log(this.refAnchorValues);
+    this.anchorValues = this.refAnchorValues;
+
+    // if (this.refAnchorPos !== this.lastAnchorPos) {
+    //   const ev = createMouseEvent('mouseleave');
+    //   this.tooltipAnchor.nativeElement.dispatchEvent(ev);
+    //   this.anchorOpacity = 0.7;
+    this.update.emit({
+      index: index,
+      value: closestPoint,
+      data: this.anchorValues
+    });
+    if (this.tooltipText) {
+      const objElm = (this.tooltipText.nativeElement as HTMLObjectElement);
+      objElm.innerHTML = moment(closestPoint).format("MMM D,YYYY")
+    }
+
   }
 
 

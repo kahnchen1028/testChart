@@ -54,7 +54,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   rotateXAxisTicks = true;
   maxXAxisTickLength = 12;
   maxYAxisTickLength = 1;
-  currentIndex = -1
+  currentIndex = 364
   result: any;
   // Combo Chart
   lineChartSeries: any[] = [];
@@ -68,9 +68,15 @@ export class AppComponent implements AfterViewInit, OnInit {
     name: 'coolthree',
     selectable: true,
     group: 'linear',
-    domain: ['#01579b', '#7aa3e5', '#a8385d', '#009900']
+    domain: ['#01579b', '#7aa3e5', '#a8385d',]
   };
 
+  circleChartScheme = {
+    name: 'coolthree',
+    selectable: true,
+    group: 'linear',
+    domain: ['#00990066']
+  };
   defaultChartData = {
     "-1": {
       'NoData': [
@@ -141,7 +147,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
     ).subscribe((result) => {
       const obj = {
-        ...this.defaultChartData
+
       };
       // console.log(data);
 
@@ -158,6 +164,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
       this.dayChartData = obj;
 
+      // this.ss.currentDate.next(initDate);
 
       const circleObj = {
 
@@ -167,9 +174,8 @@ export class AppComponent implements AfterViewInit, OnInit {
       result[1].map((company) => {
         let series = {}
         company.data.map((val, index) => {
+          val.value = val.value.map(d => { return { ...d, name: d.x } })
           series[company.name] = [...val.value]
-
-          // console.log(series, company.name, val.value);
           circleObj[val.key] = { ...circleObj[val.key], ...series }
 
         })
@@ -178,7 +184,7 @@ export class AppComponent implements AfterViewInit, OnInit {
       console.log("getCircleDataForDay", circleObj);
 
       this.dayCircleChartData = circleObj;
-
+      this.initSubscribe()
     })
     // this.ds.getDataForDay().subscribe(result => {
     //   const obj = {
@@ -234,18 +240,26 @@ export class AppComponent implements AfterViewInit, OnInit {
     //   // this.ss.currentDate.next(initDate);
     // });
 
-    this.ss.currentData$.subscribe((data) => console.log(data))
+
+  }
+
+  initSubscribe() {
+    this.ss.currentIndex.subscribe(index => this.currentIndex = index);
     this.ss.currentDate$.subscribe((data) => {
       this.currentDate = moment(new Date(data.timestamp)).format("MMMM,DD YYYY")
+      console.log(this.currentDate);
       this.dayCircleChartSeries.next(this.dayCircleChartData[data.timestamp]);
       this.dayChartSeries.next(this.dayChartData[data.timestamp]);
     })
+    this.dayChartArray = keys(this.dayChartData)
+    const initDate = { timestamp: parseInt(this.dayChartArray[this.dayChartArray.length - 1]) }
+    this.ss.currentDate.next(initDate)
   }
-
 
   @HostListener('window:resize', ['$event.target'])
   onresize() {
     this.applyDimensions();
+    this.comboChart.updateAnchor(this.currentIndex)
   }
 
   applyDimensions() {
@@ -356,6 +370,9 @@ export class AppComponent implements AfterViewInit, OnInit {
   End of Combo Chart
   **/
 
+  update() {
+    this.comboChart.updateAnchor(364)
+  }
 }
 
 

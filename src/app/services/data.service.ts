@@ -32,7 +32,8 @@ export class SharedService {
   currentData$ = this.currentData.asObservable();
   currentDate = new Subject<any>();
   currentDate$ = this.currentDate.asObservable();
-
+  currentIndex = new Subject<number>();
+  currentIndex$ = this.currentIndex.asObservable();
 }
 
 export class ServiceLocator {
