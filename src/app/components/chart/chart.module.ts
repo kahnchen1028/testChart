@@ -5,7 +5,7 @@ import { NgxChartsModule, LineChartModule } from '@swimlane/ngx-charts';
 
 import { LineBubbleChartComponent } from './line-buble-chart/line-bubble-chartComponent';
 import { LineSeriesPlusComponent } from './shared/line-series-plus/line-series-plus.component';
-import { TooltipComponent } from './shared/tooltip/tooltip.component';
+import { TooltipMoveBarComponent } from './shared/tooltip-move-bar/tooltip-move-bar.component';
 
 
 
@@ -13,7 +13,7 @@ import { TooltipComponent } from './shared/tooltip/tooltip.component';
   declarations: [
     ComboChartComponent,
     LineBubbleChartComponent,
-    TooltipComponent,
+    TooltipMoveBarComponent,
     LineSeriesPlusComponent
   ],
   imports: [

@@ -1,0 +1,32 @@
+{
+    "result": {
+        "1531180800000": {
+            "firstLine": [
+                { "name": 10, "value": "0.198" },
+                { "name": 16, "value": "0.756" },
+                { "name": 28, "value": "0.453" },
+                { "name": 56, "value": "0.53" }
+            ],
+            "secondLine": [
+                { "name": 10, "value": "0.198" },
+                { "name": 16, "value": "0.756" },
+                { "name": 28, "value": "0.453" },
+                { "name": 56, "value": "0.53" }
+            ]
+        },
+        "1531190800000": {
+            "firstLine": [
+                { "name": 10, "value": "0.198" },
+                { "name": 16, "value": "0.756" },
+                { "name": 28, "value": "0.453" },
+                { "name": 56, "value": "0.53" }
+            ],
+            "secondLine": [
+                { "name": 10, "value": "0.198" },
+                { "name": 16, "value": "0.756" },
+                { "name": 28, "value": "0.453" },
+                { "name": 56, "value": "0.53" }
+            ]
+        }
+    }
+}

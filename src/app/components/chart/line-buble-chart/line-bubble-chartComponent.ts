@@ -30,18 +30,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 
-  animations: [
-    trigger('animationState', [
-      transition(':leave', [
-        style({
-          opacity: 1
-        }),
-        animate(500, style({
-          opacity: 0
-        }))
-      ])
-    ])
-  ]
+
 })
 
 export class LineBubbleChartComponent extends BaseChartComponent implements OnInit {
@@ -60,6 +49,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
   @Input() showGridLines: boolean = true;
   @Input() curve: any = curveCardinal;
   @Input() activeEntries: any[] = [];
+  @Input() circleActiveEntries: any[] = [];
   @Input() schemeType: string;
   @Input() bubbleScheme: any;
   @Input() rangeFillOpacity: number;
@@ -144,6 +134,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
         this.data.push({ name: i, series: dayInfo[i] });
         this.result.push({ name: i, series: dayInfo[i] });
       }
+      this.activeEntries = [...this.activeEntries, ...this.result]
       this.update();
     });
     this.circleSeries.subscribe((dayInfo) => {
@@ -152,6 +143,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
       for (let i in dayInfo) {
         this.circleResult.push({ name: i, series: dayInfo[i] });
       }
+      this.activeEntries = [...this.activeEntries, ...this.circleResult]
       console.log(this.circleResult);
       this.circleUpdate();
     });
@@ -337,7 +329,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
   updateHoveredVertical(item): void {
     console.log("updateHoveredVertical", item);
     this.hoveredVertical = item.value;
-    this.deactivateAll();
+
   }
   isDate(value): boolean {
     if (value instanceof Date) {
@@ -346,22 +338,53 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
     return false;
   }
   onActivate(item) {
-    const idx = this.activeEntries.findIndex(d => {
+    console.log("onActivate", item);
+    console.log("onActivate activeEntries", this.activeEntries);
+    let idx = this.activeEntries.findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
+    console.log(idx);
     if (idx > -1) {
-      return;
+      idx = this.circleActiveEntries.findIndex(d => {
+        return d.name === item.name && d.value === item.value && d.series === item.series;
+      });
+      this.circleActiveEntries.splice(idx, 1);
+      this.circleActiveEntries = [...this.circleActiveEntries];
+      this.activate.emit({ value: item.name, entries: this.circleActiveEntries });
     }
-    this.activeEntries = [item, ...this.activeEntries];
-    this.activate.emit({ value: item, entries: this.activeEntries });
+    else {
+      this.activeEntries.splice(idx, 1);
+      this.activeEntries = [...this.activeEntries];
+      this.activate.emit({ value: item.name, entries: this.activeEntries });
+    }
+    if (idx > -1) {
+      idx = this.circleActiveEntries.findIndex(d => {
+        return d.name === item.name && d.value === item.value && d.series === item.series;
+      });
+    }
+
   }
   onDeactivate(item) {
-    const idx = this.activeEntries.findIndex(d => {
+    console.log("onActivate", item);
+    console.log("onActivate activeEntries", this.activeEntries);
+    let idx = this.activeEntries.findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
-    this.activeEntries.splice(idx, 1);
-    this.activeEntries = [...this.activeEntries];
-    this.deactivate.emit({ value: item, entries: this.activeEntries });
+    console.log(idx);
+    if (idx > -1) {
+      idx = this.circleActiveEntries.findIndex(d => {
+        return d.name === item.name && d.value === item.value && d.series === item.series;
+      });
+      this.circleActiveEntries.splice(idx, 1);
+      this.circleActiveEntries = [...this.circleActiveEntries];
+      this.deactivate.emit({ value: item.name, entries: this.circleActiveEntries });
+    }
+    else {
+      this.activeEntries.splice(idx, 1);
+      this.activeEntries = [...this.activeEntries];
+      this.deactivate.emit({ value: item.name, entries: this.activeEntries });
+    }
+
   }
   deactivateAll() {
     this.activeEntries = [...this.activeEntries];
@@ -373,7 +396,7 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
   @HostListener('mouseleave')
   hideCircles(): void {
     this.hoveredVertical = null;
-    this.deactivateAll();
+    // this.deactivateAll();
   }
   onSelect() {
   }

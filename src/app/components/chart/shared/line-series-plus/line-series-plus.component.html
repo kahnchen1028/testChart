@@ -1,4 +1,4 @@
-template: `
+
     <svg:g>
       <defs>
         <svg:g ngx-charts-svg-linear-gradient *ngIf="hasGradient"
@@ -7,7 +7,7 @@ template: `
           [stops]="gradientStops"
         />
       </defs>
-      <svg:g ngx-charts-area
+      <!-- <svg:g ngx-charts-area
         class="line-highlight"
         [data]="data"
         [path]="areaPath"
@@ -19,16 +19,49 @@ template: `
         [class.active]="isActive(data)"
         [class.inactive]="isInactive(data)"
         [animations]="animations"
-      />
+      /> -->
       <svg:g ngx-charts-line
         class="line-series"
         [data]="data"
         [path]="path"
         [stroke]="stroke"
-        [animations]="animations"
+        [animations]="false"
         [class.active]="isActive(data)"
         [class.inactive]="isInactive(data)"
       />
+      <svg:g *ngFor="let circle of circleArray">
+          <svg:rect
+          *ngIf="barVisible && type === 'standard'"
+
+          [attr.x]="circle.cx - circle.radius"
+          [attr.y]="circle.cy"
+          [attr.width]="circle.radius * 2"
+          [attr.height]="circle.height"
+          [attr.fill]="gradientFill"
+          class="tooltip-bar"
+        />
+        <svg:g
+        ngx-charts-circle
+        class="circle"
+        [cx]="circle.cx"
+        [cy]="circle.cy"
+        [r]="(showTicks)?circle.radius:0.5"
+        [fill]="circle.color"
+
+        [class.active]="isActive({ name: circle.seriesName })"
+        [pointerEvents]="circle.value === 0 ? 'none' : 'all'"
+        [data]="circle.value"
+        [classNames]="circle.classNames"
+
+        ngx-tooltip
+        [tooltipDisabled]="tooltipDisabled"
+        [tooltipPlacement]="'top'"
+        [tooltipType]="'tooltip'"
+        [tooltipTitle]="tooltipTemplate ? undefined : getTooltipText(circle)"
+        [tooltipTemplate]="tooltipTemplate"
+        [tooltipContext]="circle.data"
+      />
+      </svg:g>
      <svg:g ngx-charts-area
         *ngIf="hasRange"
         class="line-series-range"
@@ -41,4 +74,4 @@ template: `
         [animations]="animations"
       />
     </svg:g>
-  `
+

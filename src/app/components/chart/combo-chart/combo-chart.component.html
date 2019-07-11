@@ -62,10 +62,13 @@
         (dimensionsChanged)="updateYAxisWidth($event)"
       ></svg:g>
         <svg:g *ngIf="lineChart.length>0">
-          <svg:g  *ngFor="let series of lineChart ;trackBy: trackBy">
+
+
+        <svg:g  *ngFor="let series of lineChart ;trackBy: trackBy">
 
             <svg:g
               app-line-series-plus
+              [showTicks]="false"
               [xScale]="xScale"
               [yScale]="(series.name == 'sp')?yScaleSP:(series.name == 'bitcoin')?yScaleBitcoin:yScaleTreasury"
               [colors]="colorsLine"
@@ -77,25 +80,22 @@
               [animations]="animations"
             />
 
-          </svg:g>
-          <svg:g
-            id="tooltip"
-            #TooltipArea
-            app-tooltip
-            *ngIf="!tooltipDisabled"
-            [dims]="dims"
-            [xSet]="xSet"
-            [xScale]="xScale"
-            [yScale]="yScaleSP"
-            [results]="combinedSeries"
-            [colors]="colorsLine"
-            [tooltipDisabled]="tooltipDisabled"
-            [tooltipTemplate]="seriesTooltipTemplate"
-            (update)="updateVertical($event)"
-          >
         </svg:g>
-
-
+        <svg:g
+          id="tooltip"
+          #TooltipArea
+          app-tooltip-move-bar
+          [dims]="dims"
+          [xSet]="xSet"
+          [xScale]="xScale"
+          [yScale]="yScaleSP"
+          [results]="combinedSeries"
+          [colors]="colorsLine"
+          [tooltipDisabled]="tooltipDisabled"
+          [tooltipTemplate]="seriesTooltipTemplate"
+          (update)="updateVertical($event)"
+        >
+      </svg:g>
 
 
         </svg:g>

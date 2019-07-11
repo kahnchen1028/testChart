@@ -1,3 +1,4 @@
+import { LineBubbleChartComponent } from './components/chart/line-buble-chart/line-bubble-chartComponent';
 import { Component, HostListener, ElementRef, AfterViewInit, OnInit, ViewChild } from '@angular/core';
 import { ViewDimensions } from '@swimlane/ngx-charts';
 import * as moment from 'moment';
@@ -35,6 +36,8 @@ export class AppComponent implements AfterViewInit, OnInit {
   currentDate = moment().add(-10, 'days').format("MMMM,DD YYYY")
   activateSet = new Set();
   deactivateSet = new Set();
+  curveActivateSet = new Set();
+  curveDeactivateSet = new Set();
   showYAxisLabel = false;
   curve: any = curveCardinal;
   showGridLines = true;
@@ -56,8 +59,8 @@ export class AppComponent implements AfterViewInit, OnInit {
   maxYAxisTickLength = 1;
   currentIndex = 364
   result: any;
-  // Combo Chart
   lineChartSeries: any[] = [];
+  lineBubbleChartSeries: any[] = [];
   dayChartSeries = new Subject();
   dayCircleChartSeries = new Subject();
   dayChartData: {};
@@ -114,6 +117,8 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   showRightYAxisLabel = true;
   @ViewChild('comboChart', { static: false }) comboChart: ComboChartComponent;
+  @ViewChild('lineBubbleChart', { static: false }) lineBubbleChart: LineBubbleChartComponent;
+
 
 
 
@@ -153,6 +158,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
       result[0].map((company) => {
         let series = {}
+        this.curveActivateSet.add(company.name)
         company.data.map((val, index) => {
           series[company.name] = [...val.value]
 
@@ -163,7 +169,7 @@ export class AppComponent implements AfterViewInit, OnInit {
       })
 
       this.dayChartData = obj;
-
+      console.log("dayChartData", this.dayChartData);
       // this.ss.currentDate.next(initDate);
 
       const circleObj = {
@@ -173,6 +179,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
       result[1].map((company) => {
         let series = {}
+        this.curveActivateSet.add(company.name)
         company.data.map((val, index) => {
           val.value = val.value.map(d => { return { ...d, name: d.x } })
           series[company.name] = [...val.value]
@@ -250,6 +257,9 @@ export class AppComponent implements AfterViewInit, OnInit {
       console.log(this.currentDate);
       this.dayCircleChartSeries.next(this.dayCircleChartData[data.timestamp]);
       this.dayChartSeries.next(this.dayChartData[data.timestamp]);
+      this.lineBubbleChartSeries = { ...this.dayChartData[data.timestamp], ...this.dayCircleChartData[data.timestamp] }
+      console.log(this.lineBubbleChartSeries);
+
     })
     this.dayChartArray = keys(this.dayChartData)
     const initDate = { timestamp: parseInt(this.dayChartArray[this.dayChartArray.length - 1]) }
@@ -285,9 +295,42 @@ export class AppComponent implements AfterViewInit, OnInit {
     }
 
   }
+  onBubbleSelect(idx) {
+    console.log(this.lineBubbleChartSeries[idx]);
+    console.log(this.curveDeactivateSet);
+    console.log(this.curveActivateSet);
+    const isDeactivate = this.curveDeactivateSet.has(idx);
+    const isActivate = this.curveActivateSet.has(idx);
+    console.log(isDeactivate);
+    console.log(isActivate);
+    if (isDeactivate) {
+      this.lineBubbleChart.onActivate({ name: idx, value: (this.lineBubbleChartSeries[idx]) })
+    }
+    if (isActivate) {
+      this.lineBubbleChart.onDeactivate({ name: idx, value: this.lineBubbleChartSeries[idx] })
+    }
+
+  }
   ngAfterViewInit() {
 
 
+  }
+
+  bubbleActivate(data) {
+    data = JSON.parse(JSON.stringify(data));
+    this.curveActivateSet.add(data.value)
+
+    this.curveDeactivateSet.delete(data.value)
+    console.log('Activate', this.curveActivateSet);
+    console.log('Deactivate', data, this.curveDeactivateSet);
+  }
+
+  bubbleDeactivate(data) {
+    data = JSON.parse(JSON.stringify(data));
+    this.curveDeactivateSet.add(data.value)
+    this.curveActivateSet.delete(data.value)
+    console.log('Activate', this.curveActivateSet);
+    console.log('Deactivate', data, this.curveDeactivateSet);
   }
 
   activate(data) {

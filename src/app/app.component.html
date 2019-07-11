@@ -1,6 +1,14 @@
 <div class="flex-box flex-wrap">
   <div class="chart flex-1">
+      <div class="flex-box">
+      <div class="flex-1" *ngFor="let item of lineBubbleChartSeries|keyvalue ;let i=index;">
+        <Button (click)="onBubbleSelect(item.key)"> {{item.key}}</Button>
+
+      </div>
+
+    </div>
       <line-bubble-chart-component
+      #lineBubbleChart
       class="chart-container"
       [showGridLines]="showGridLines"
       [view]="lineView"
@@ -14,7 +22,8 @@
       [xAxisTickFormatting]="xLineTickFormat"
 
       [yAxisTickFormatting]="yAxisTickFormatting"
-      (select)="onSelect($event)"
+      (activate)="bubbleActivate($event)"
+      (deactivate)="bubbleDeactivate($event)"
     ></line-bubble-chart-component>
   </div>
 

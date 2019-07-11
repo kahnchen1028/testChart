@@ -1,3 +1,4 @@
+
 import { SharedService, ServiceLocator } from './../../../services/data.service';
 import { Subject } from 'rxjs';
 import {
@@ -28,14 +29,14 @@ import {
   calculateViewDimensions,
   TooltipArea
 } from '@swimlane/ngx-charts';
-import { TooltipComponent } from '../shared/tooltip/tooltip.component';
+import { TooltipMoveBarComponent } from '../shared/tooltip-move-bar/tooltip-move-bar.component';
+
 
 
 @Component({
   selector: 'combo-chart-component',
   templateUrl: './combo-chart.component.html',
   styleUrls: ['./combo-chart.component.scss'],
-
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -76,7 +77,7 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit, A
   @Output() deactivate: EventEmitter<any> = new EventEmitter();
   @ContentChild('tooltipTemplate', { static: false }) tooltipTemplate: TemplateRef<any>;
   @ContentChild('seriesTooltipTemplate', { static: false }) seriesTooltipTemplate: TemplateRef<any>;
-  @ViewChild('TooltipArea', { static: false }) tooltipArea: TooltipComponent;
+  @ViewChild('TooltipArea', { static: false }) tooltipArea: TooltipMoveBarComponent;
   @ViewChild(LineSeriesComponent, { static: false }) lineSeriesComponent: LineSeriesComponent;
 
   dims: ViewDimensions;

@@ -6,8 +6,9 @@
         y="0"
         [attr.width]="dims.width"
         [attr.height]="dims.height"
-        style="opacity: 0; cursor: 'auto'"
-        [style.pointer-events]="'all'"
+        style="opacity: 0; "
+        [style.pointer-events]="'auto'"
+        [style.cursor]="(isOnBar)?'grab':'auto'"
 
         (mousedown)="onDragStart($event)"
         (mousemove)="onDrag($event)"
@@ -55,6 +56,7 @@
         [style.pointer-events]="'none'"
       />
       <svg:circle
+      *ngIf="!isMouseDown"
       class="block"
       [attr.cx]="refAnchorPos"
       [attr.cy]="dims.height/2"
@@ -74,16 +76,16 @@
           </feMerge>
         </filter>
       <svg:rect
-      *ngIf="isMouseDown"
+
       class="block"
       [attr.x]="refAnchorPos-30"
       [attr.y]="dims.height"
       [attr.width]="60"
       [attr.height]="20"
-      [style.opacity]="refAnchorOpacity"
+      [style.opacity]="(isMouseDown)?1:0"
       style="filter:url(#dropshadow)"
       >
       </svg:rect>
-  <svg:text  *ngIf="isMouseDown" [attr.x]="refAnchorPos-22" #tooltipText
+  <svg:text   [style.opacity]="(isMouseDown)?1:0" [attr.x]="refAnchorPos-22" #tooltipText
   [attr.y]="dims.height+15"  font-size="10" fill="black" ></svg:text>
 </svg:g>

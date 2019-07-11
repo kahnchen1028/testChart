@@ -24,10 +24,10 @@
     [attr.width]="dims.width"
     [attr.height]="dims.height"
     style="fill: rgb(255, 0, 0); opacity: 0; cursor: 'auto';"
-    (mouseenter)="deactivateAll()"
+
   />
   <svg:g [attr.clip-path]="clipPath" *ngIf="circleResult">
-      <svg:g
+      <!-- <svg:g
       ngx-charts-tooltip-area
       #tooltipArea2
       [dims]="dims"
@@ -36,9 +36,8 @@
       [yScale]="yCircleScale"
       [results]="circleResult"
       [colors]="bubleColors"
-
       (hover)="updateHoveredVertical($event)"
-    />
+    /> -->
     <svg:g *ngFor="let cseries of circleResult;">
       <svg:g
         ngx-charts-bubble-series
@@ -53,8 +52,6 @@
         [data]="cseries"
         [activeEntries]="activeEntries"
         [tooltipDisabled]="tooltipDisabled"
-
-        (select)="onClick($event, cseries)"
         (activate)="onActivate($event)"
         (deactivate)="onDeactivate($event)"
       />
@@ -96,9 +93,9 @@
     (dimensionsChanged)="updateYAxisWidth($event)"
   ></svg:g>
   <svg:g [attr.clip-path]="clipPath">
-    <svg:g *ngFor="let series of result; trackBy: trackBy" [@animationState]="'active'">
+    <svg:g *ngFor="let series of result; trackBy: trackBy" >
       <svg:g
-        ngx-charts-line-series
+      app-line-series-plus
         [xScale]="xScale"
         [yScale]="yScale"
         [colors]="colors"
@@ -109,42 +106,11 @@
         [rangeFillOpacity]="rangeFillOpacity"
         [hasRange]="hasRange"
         [animations]="animations"
+
       />
     </svg:g>
 
-    <svg:g *ngIf="!tooltipDisabled" (mouseleave)="hideCircles()">
-      <!-- <svg:g
-        ngx-charts-tooltip-area
-        #tooltipArea
-        [dims]="dims"
-        [xSet]="xSet"
-        [xScale]="xScale"
-        [yScale]="yScale"
-        [results]="result"
-        [colors]="colors"
-        [tooltipDisabled]="tooltipDisabled"
-        [tooltipTemplate]="seriesTooltipTemplate"
-        (hover)="updateHoveredVertical($event)"
-      /> -->
-      <svg:g *ngFor="let series of result">
-        <svg:g
-          ngx-charts-circle-series
-          [xScale]="xScale"
-          [yScale]="yScale"
-          [colors]="colors"
-          [data]="series"
-          [scaleType]="scaleType"
-          [visibleValue]="hoveredVertical"
-          [activeEntries]="activeEntries"
-          [tooltipDisabled]="true"
 
-          (select)="onClick($event)"
-          (activate)="onActivate($event)"
-          (deactivate)="onDeactivate($event)"
-        />
-      </svg:g>
-
-    </svg:g>
   </svg:g>
 </svg:g>
 

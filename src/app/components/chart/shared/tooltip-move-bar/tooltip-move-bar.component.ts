@@ -1,21 +1,19 @@
 
 import { TooltipArea } from '@swimlane/ngx-charts';
-import { Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, TemplateRef, AfterViewInit, OnInit, HostListener, ElementRef } from '@angular/core';
-import { drag } from 'd3-drag';
-import { select, selectAll } from 'd3-selection';
-import { createMouseEvent } from '@swimlane/ngx-charts/release/events';
-import { ViewEncapsulation } from '@angular/compiler/src/core';
+import { Component, Output, EventEmitter, ViewChild, AfterViewInit, OnInit, HostListener, ViewEncapsulation } from '@angular/core';
 import * as moment from 'moment';
 
 @Component({
-  selector: 'g[app-tooltip]',
+  selector: 'g[app-tooltip-move-bar]',
 
-  templateUrl: './tooltip.component.html',
-  styleUrls: ['./tooltip.component.scss'],
+  templateUrl: './tooltip-move-bar.component.html',
+  styleUrls: ['./tooltip-move-bar.component.scss'],
+
 
 })
-export class TooltipComponent extends TooltipArea implements OnInit, AfterViewInit {
+export class TooltipMoveBarComponent extends TooltipArea implements OnInit, AfterViewInit {
   isMouseDown = false;
+  isOnBar = false;
   refAnchorPos: number;
   refAnchorValues: any;
   refAnchorOpacity: number;
@@ -30,16 +28,6 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
   }
 
   ngAfterViewInit() {
-    // const closestPoint = this.xSet[0];
-    // this.anchorPos = this.xScale(closestPoint) - 5;
-    // this.anchorPos = Math.max(0, this.anchorPos);
-    // this.anchorPos = Math.min(this.dims.width, this.anchorPos);
-    // this.anchorValues = this.getValues(closestPoint);
-    // this.update.emit({
-    //   index: 0,
-    //   value: closestPoint,
-    //   data: this.anchorValues
-    // });
 
   }
 
@@ -83,17 +71,17 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
   }
   onDrag(event) {
     event.preventDefault()
-    if (!this.isMouseDown) { return; }
+
+    if (!this.isMouseDown) {
+      this.checkOnBar(event)
+      return;
+    }
     const x = (event.touches) ? event.touches[0].clientX : event.pageX;
 
     const xPos = x - event.target.getBoundingClientRect().left;
 
     const closestIndex = this.findClosestPointIndex(xPos);
     this.setPosByIndex(closestIndex);
-
-    //   this.lastAnchorPos = this.refAnchorPos;
-    // }
-
 
   }
 
@@ -151,21 +139,29 @@ export class TooltipComponent extends TooltipArea implements OnInit, AfterViewIn
     console.log(this.refAnchorValues);
     this.anchorValues = this.refAnchorValues;
 
-    // if (this.refAnchorPos !== this.lastAnchorPos) {
-    //   const ev = createMouseEvent('mouseleave');
-    //   this.tooltipAnchor.nativeElement.dispatchEvent(ev);
-    //   this.anchorOpacity = 0.7;
     this.update.emit({
       index: index,
       value: closestPoint,
       data: this.anchorValues
     });
-    if (this.tooltipText) {
-      const objElm = (this.tooltipText.nativeElement as HTMLObjectElement);
-      objElm.innerHTML = moment(closestPoint).format("MMM D,YYYY")
-    }
+
+    const objElm = (this.tooltipText.nativeElement as HTMLObjectElement);
+    objElm.innerHTML = moment(closestPoint).format("MMM D,YYYY")
 
   }
 
+
+  checkOnBar(event) {
+    const x = (event.touches) ? event.touches[0].clientX : event.pageX;
+    const rect = (this.tooltipAnchor.nativeElement as HTMLObjectElement);
+    const left = rect.getBoundingClientRect().left;
+    const width = rect.getBoundingClientRect().width
+    if (x >= left && x <= width + left) {
+      this.isOnBar = true
+    }
+    else {
+      this.isOnBar = false
+    }
+  }
 
 }
