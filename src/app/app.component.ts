@@ -143,7 +143,6 @@ export class AppComponent implements AfterViewInit, OnInit {
       });
       this.lineChartSeries = info;
 
-      console.log("getDataForYear", info);
 
     });
     forkJoin(
@@ -154,7 +153,6 @@ export class AppComponent implements AfterViewInit, OnInit {
       const obj = {
 
       };
-      // console.log(data);
 
       result[0].map((company) => {
         let series = {}
@@ -162,14 +160,12 @@ export class AppComponent implements AfterViewInit, OnInit {
         company.data.map((val, index) => {
           series[company.name] = [...val.value]
 
-          // console.log(series, company.name, val.value);
           obj[val.key] = { ...obj[val.key], ...series }
 
         })
       })
 
       this.dayChartData = obj;
-      console.log("dayChartData", this.dayChartData);
       // this.ss.currentDate.next(initDate);
 
       const circleObj = {
@@ -188,7 +184,6 @@ export class AppComponent implements AfterViewInit, OnInit {
         })
       })
 
-      console.log("getCircleDataForDay", circleObj);
 
       this.dayCircleChartData = circleObj;
       this.initSubscribe()
@@ -254,11 +249,9 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.ss.currentIndex.subscribe(index => this.currentIndex = index);
     this.ss.currentDate$.subscribe((data) => {
       this.currentDate = moment(new Date(data.timestamp)).format("MMMM,DD YYYY")
-      console.log(this.currentDate);
       this.dayCircleChartSeries.next(this.dayCircleChartData[data.timestamp]);
       this.dayChartSeries.next(this.dayChartData[data.timestamp]);
       this.lineBubbleChartSeries = { ...this.dayChartData[data.timestamp], ...this.dayCircleChartData[data.timestamp] }
-      console.log(this.lineBubbleChartSeries);
 
     })
     this.dayChartArray = keys(this.dayChartData)
@@ -276,17 +269,11 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.width = this.ref.nativeElement.querySelector('.chart').clientWidth;
     this.view = [this.width, this.height];
     this.lineView = [this.width, this.height];
-    console.log("this.view", this.view);
   }
 
   onSelect(idx) {
-    console.log(this.lineChartSeries[idx].name);
-    console.log(this.deactivateSet);
-    console.log(this.activateSet);
     const isDeactivate = this.deactivateSet.has(this.lineChartSeries[idx].name);
     const isActivate = this.activateSet.has(this.lineChartSeries[idx].name);
-    console.log(isDeactivate);
-    console.log(isActivate);
     if (isDeactivate) {
       this.comboChart.onActivate(this.lineChartSeries[idx])
     }
@@ -296,13 +283,10 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   }
   onBubbleSelect(idx) {
-    console.log(this.lineBubbleChartSeries[idx]);
-    console.log(this.curveDeactivateSet);
-    console.log(this.curveActivateSet);
+
     const isDeactivate = this.curveDeactivateSet.has(idx);
     const isActivate = this.curveActivateSet.has(idx);
-    console.log(isDeactivate);
-    console.log(isActivate);
+
     if (isDeactivate) {
       this.lineBubbleChart.onActivate({ name: idx, value: (this.lineBubbleChartSeries[idx]) })
     }
@@ -318,19 +302,15 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   bubbleActivate(data) {
     data = JSON.parse(JSON.stringify(data));
-    this.curveActivateSet.add(data.value)
+    this.curveActivateSet.add(data.value.name)
 
-    this.curveDeactivateSet.delete(data.value)
-    console.log('Activate', this.curveActivateSet);
-    console.log('Deactivate', data, this.curveDeactivateSet);
+    this.curveDeactivateSet.delete(data.value.name)
   }
 
   bubbleDeactivate(data) {
     data = JSON.parse(JSON.stringify(data));
-    this.curveDeactivateSet.add(data.value)
-    this.curveActivateSet.delete(data.value)
-    console.log('Activate', this.curveActivateSet);
-    console.log('Deactivate', data, this.curveDeactivateSet);
+    this.curveDeactivateSet.add(data.value.name)
+    this.curveActivateSet.delete(data.value.name)
   }
 
   activate(data) {
@@ -339,16 +319,13 @@ export class AppComponent implements AfterViewInit, OnInit {
 
     this.deactivateSet.delete(data.value.name)
 
-    console.log('Activate', data, this.activateSet);
-    console.log('Deactivate', this.deactivateSet);
   }
 
   deactivate(data) {
     data = JSON.parse(JSON.stringify(data));
     this.deactivateSet.add(data.value.name)
     this.activateSet.delete(data.value.name)
-    console.log('Activate', this.activateSet);
-    console.log('Deactivate', data, this.deactivateSet);
+
   }
 
   yAxisTickFormatting(data) {
@@ -367,17 +344,14 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   yLeftAxisScale(min, max) {
 
-    // console.log({ min: `${min}`, max: `${max}` });
     return { min: `${min - 2000}`, max: `${max + 1000}` };
   }
 
   yRightAxisScale(min, max) {
-    // console.log({ min: `${min}`, max: `${max}` });
     return { min: `${min}`, max: `${max + 50}` };
   }
 
   yRight2AxisScale(min, max) {
-    // console.log({ min: `${min}`, max: `${max}` });
     return { min: `${min}`, max: `${max + 30}` };
   }
   yLeftTickFormat(data) {

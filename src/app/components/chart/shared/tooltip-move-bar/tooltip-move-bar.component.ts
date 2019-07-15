@@ -59,7 +59,6 @@ export class TooltipMoveBarComponent extends TooltipArea implements OnInit, Afte
     const rect = (this.tooltipAnchor.nativeElement as HTMLObjectElement);
     const left = rect.getBoundingClientRect().left;
     const width = rect.getBoundingClientRect().width
-    // console.log(left, '<', event.x, '<', left + width);
     const x = (event.touches) ? event.touches[0].clientX : event.pageX;
 
     if (x >= left && x <= width + left) {
@@ -89,7 +88,6 @@ export class TooltipMoveBarComponent extends TooltipArea implements OnInit, Afte
   onDragEnd(event) {
     event.preventDefault()
     this.isMouseDown = false;
-    // console.log('onDragEnd', event);
 
   }
 
@@ -130,13 +128,11 @@ export class TooltipMoveBarComponent extends TooltipArea implements OnInit, Afte
     this.anchorPos = Math.max(0, this.anchorPos);
     this.anchorPos = Math.min(this.dims.width, this.anchorPos);
 
-    console.log(index);
     this.refAnchorPos = this.xScale(closestPoint)
     this.refAnchorPos = Math.max(0, this.refAnchorPos);
     this.refAnchorPos = Math.min(this.dims.width, this.refAnchorPos);
 
     this.refAnchorValues = this.getValues(closestPoint);
-    console.log(this.refAnchorValues);
     this.anchorValues = this.refAnchorValues;
 
     this.update.emit({

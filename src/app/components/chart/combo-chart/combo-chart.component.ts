@@ -183,7 +183,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit, A
 
     this.setColors();
     this.legendOptions = this.getLegendOptions();
-    console.log(this.dims.xOffset);
 
   }
 
@@ -203,15 +202,12 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit, A
   }
 
   parseDate(date) {
-    console.log(date);
     return moment(date).format('MMMM,DD YYYY')
   }
   updateVertical(item): void {
-    console.log(item);
     this.sharedService.currentIndex.next(item.index)
     this.sharedService.currentData.next(item.data)
     this.sharedService.currentDate.next({ timestamp: item.value })
-    console.log(moment(item.value).format('MMMM,DD YYYY'));
 
     // this.setCurrentDate.emit({ timestamp: item.value })
     this.hoveredVertical = item.value;
@@ -279,12 +275,11 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit, A
         values.add(new Date(d.name).getTime())
       }
     }
-    // console.log(values);
     let info = Array.from(values)
 
 
     this.scaleType = this.getScaleType(info);
-    // console.log(this.scaleType);
+    // (this.scaleType);
     let domain = [];
 
     if (this.scaleType === 'time') {
@@ -455,7 +450,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit, A
   }
 
   onActivate(item) {
-    console.log(this.activeEntries);
     const idx = this.activeEntries.findIndex(d => {
       return d.name === item.name && d.value === item.value && d.series === item.series;
     });
@@ -464,7 +458,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit, A
     }
 
     this.activeEntries = [item, ...this.activeEntries];
-    console.log("A this.activeEntries", this.activeEntries);
     this.activate.emit({ value: item, entries: this.activeEntries });
   }
 
@@ -475,7 +468,6 @@ export class ComboChartComponent extends BaseChartComponent implements OnInit, A
 
     this.activeEntries.splice(idx, 1);
     this.activeEntries = [...this.activeEntries];
-    console.log("D this.activeEntries", this.activeEntries);
     this.deactivate.emit({ value: item, entries: this.activeEntries });
   }
 

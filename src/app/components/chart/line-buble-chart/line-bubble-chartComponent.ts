@@ -1,4 +1,6 @@
-import { BehaviorSubject } from 'rxjs';
+import { entries } from 'd3-collection';
+import { concatMap, concatAll } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, combineLatest, concat } from 'rxjs';
 import {
   Component,
   Input,
@@ -127,29 +129,47 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
   }
   ngOnInit() {
 
-    this.series.subscribe((dayInfo) => {
-      this.result = [];
-      this.data = [];
-      for (let i in dayInfo) {
-        this.data.push({ name: i, series: dayInfo[i] });
-        this.result.push({ name: i, series: dayInfo[i] });
+
+    combineLatest(this.series, this.circleSeries).subscribe(val => {
+      let tmpArr = []
+      for (let i in val[0]) {
+        // this.data.push({ name: i, series: val[0][i] });
+        tmpArr.push({ name: i, series: val[0][i] });
       }
-      this.activeEntries = [...this.activeEntries, ...this.result]
+      this.result = [...tmpArr];
+      tmpArr = []
+      for (let i in val[1]) {
+        tmpArr.push({ name: i, series: val[1][i] });
+      }
+      this.circleResult = [...tmpArr]
+
+      this.activeEntries = entries({ ...val[0], ...val[1] }).map(val => ({ name: val.key, value: val.value }));
       this.update();
-    });
-    this.circleSeries.subscribe((dayInfo) => {
-      this.circleResult = []
-      console.log(dayInfo);
-      for (let i in dayInfo) {
-        this.circleResult.push({ name: i, series: dayInfo[i] });
-      }
-      this.activeEntries = [...this.activeEntries, ...this.circleResult]
-      console.log(this.circleResult);
       this.circleUpdate();
-    });
+    })
+
+    // this.series.subscribe((dayInfo) => {
+    //   this.result = [];
+    //   this.data = [];
+    //   for (let i in dayInfo) {
+    //     this.data.push({ name: i, series: dayInfo[i] });
+    //     this.result.push({ name: i, series: dayInfo[i] });
+    //   }
+    //   this.activeEntries = [...this.activeEntries, ...this.result]
+    //   this.update();
+    // });
+    // this.circleSeries.subscribe((dayInfo) => {
+    //   this.circleResult = []
+    //   console.log(dayInfo);
+    //   for (let i in dayInfo) {
+    //     this.circleResult.push({ name: i, series: dayInfo[i] });
+    //   }
+    //   this.activeEntries = [...this.activeEntries, ...this.circleResult]
+    //   // console.log(this.circleResult);
+    //   this.circleUpdate();
+    // });
   }
   circleUpdate() {
-    console.log("circleUpdate");
     super.update();
     this.minRadius = Math.max(this.minRadius, 1);
     this.maxRadius = Math.max(this.maxRadius, 1);
@@ -327,7 +347,6 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
     return this.roundDomains ? scale.nice() : scale;
   }
   updateHoveredVertical(item): void {
-    console.log("updateHoveredVertical", item);
     this.hoveredVertical = item.value;
 
   }
@@ -338,52 +357,28 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
     return false;
   }
   onActivate(item) {
-    console.log("onActivate", item);
-    console.log("onActivate activeEntries", this.activeEntries);
+
     let idx = this.activeEntries.findIndex(d => {
-      return d.name === item.name && d.value === item.value && d.series === item.series;
+      return d.name === item.name && d.value === item.value;
     });
-    console.log(idx);
     if (idx > -1) {
-      idx = this.circleActiveEntries.findIndex(d => {
-        return d.name === item.name && d.value === item.value && d.series === item.series;
-      });
-      this.circleActiveEntries.splice(idx, 1);
-      this.circleActiveEntries = [...this.circleActiveEntries];
-      this.activate.emit({ value: item.name, entries: this.circleActiveEntries });
+      return;
     }
-    else {
-      this.activeEntries.splice(idx, 1);
-      this.activeEntries = [...this.activeEntries];
-      this.activate.emit({ value: item.name, entries: this.activeEntries });
-    }
-    if (idx > -1) {
-      idx = this.circleActiveEntries.findIndex(d => {
-        return d.name === item.name && d.value === item.value && d.series === item.series;
-      });
-    }
+    this.activeEntries = [item, ...this.activeEntries];
+    this.activate.emit({ value: item, entries: this.activeEntries });
+    this.activeEntries = [...this.activeEntries];
+    this.activate.emit({ value: item.name, entries: this.activeEntries });
+
 
   }
   onDeactivate(item) {
-    console.log("onActivate", item);
-    console.log("onActivate activeEntries", this.activeEntries);
+
     let idx = this.activeEntries.findIndex(d => {
-      return d.name === item.name && d.value === item.value && d.series === item.series;
+      return d.name === item.name && d.value === item.value;
     });
-    console.log(idx);
-    if (idx > -1) {
-      idx = this.circleActiveEntries.findIndex(d => {
-        return d.name === item.name && d.value === item.value && d.series === item.series;
-      });
-      this.circleActiveEntries.splice(idx, 1);
-      this.circleActiveEntries = [...this.circleActiveEntries];
-      this.deactivate.emit({ value: item.name, entries: this.circleActiveEntries });
-    }
-    else {
-      this.activeEntries.splice(idx, 1);
-      this.activeEntries = [...this.activeEntries];
-      this.deactivate.emit({ value: item.name, entries: this.activeEntries });
-    }
+    this.activeEntries.splice(idx, 1);
+    this.activeEntries = [...this.activeEntries];
+    this.deactivate.emit({ value: item, entries: this.activeEntries });
 
   }
   deactivateAll() {
@@ -412,15 +407,12 @@ export class LineBubbleChartComponent extends BaseChartComponent implements OnIn
         max = Math.max(max, value);
       }
     }
-    console.log("Rdomain", min, max);
     return [min, max];
   }
   getRScale(domain, range): any {
-    console.log("getRScale", range);
     const scale = scaleLinear()
       .range(range)
       .domain(domain);
-    console.log("getRScale", scale);
     return this.roundDomains ? scale.nice() : scale;
   }
   getBubblePadding() {

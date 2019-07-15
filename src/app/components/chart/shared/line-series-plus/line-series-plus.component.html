@@ -45,10 +45,10 @@
         class="circle"
         [cx]="circle.cx"
         [cy]="circle.cy"
-        [r]="(showTicks)?circle.radius:0.5"
+        [r]="(showTicks)?circle.radius:0"
         [fill]="circle.color"
-
         [class.active]="isActive({ name: circle.seriesName })"
+        [class.inactive]="isInactive({ name: circle.seriesName })"
         [pointerEvents]="circle.value === 0 ? 'none' : 'all'"
         [data]="circle.value"
         [classNames]="circle.classNames"

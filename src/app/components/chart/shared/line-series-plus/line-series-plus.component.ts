@@ -26,7 +26,6 @@ export class LineSeriesPlusComponent extends LineSeriesComponent implements OnIn
   }
 
   ngOnInit() {
-    console.log("LineSeriesPlusComponent", this.data);
 
     this.gradientId = 'grad' + id().toString();
     this.gradientFill = `url(#${this.gradientId})`;
@@ -44,6 +43,21 @@ export class LineSeriesPlusComponent extends LineSeriesComponent implements OnIn
 
 
     return item === undefined;
+  }
+  isActive2(entry): boolean {
+    if (!this.activeEntries) return false;
+    const item = this.activeEntries.find(d => {
+      return entry.name === d.name;
+    });
+    return item !== undefined;
+  }
+
+  isActive(entry): boolean {
+    if (!this.activeEntries) return false;
+    const item = this.activeEntries.find(d => {
+      return entry.name === d.name;
+    });
+    return item !== undefined;
   }
   ngOnChanges() {
     this.update();
